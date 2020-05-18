@@ -21,7 +21,7 @@ FWVLog::~FWVLog()
 	UE_LOG(LogWVModule, Display, TEXT("===FWVLog::~FWVLog==="));
 }
 
-void FWVLog::init()
+void FWVLog::Init()
 {
 	_logScreenColors.Emplace(EWVLogVerbosity::Info, FColor(0, 255, 0));
 	_logScreenColors.Emplace(EWVLogVerbosity::Warning, FColor(255, 255, 0));
@@ -34,7 +34,7 @@ TSharedPtr<FWVLog> FWVLog::GetInstance()
 	if (!_instance.IsValid())
 	{
 		_instance = MakeShareable(new FWVLog());
-		_instance->init();
+		_instance->Init();
 	}
 	return _instance;
 }
@@ -81,7 +81,7 @@ void FWVLog::Log(const FString& strLog, EWVLogVerbosity logVerbosity, bool bPrin
 	if (bPrintToScreen)
 	{
 		auto strLogVerbosity = UEnum::GetDisplayValueAsText(logVerbosity);
-		duration = duration <= 0 ? 1000 : duration;
+		duration = duration <= 0 ? 600 : duration;
 		auto strOut = FString::Printf(TEXT("[%s]%s"), *strLogVerbosity.ToString(), *strLog);
 		
 		GEngine->AddOnScreenDebugMessage(INDEX_NONE, duration, color_logScreen, strOut);

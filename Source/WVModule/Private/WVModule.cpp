@@ -1,4 +1,4 @@
-﻿#include "WVModule/Public/WVModule.h"
+﻿#include "WVModule.h"
 
 DEFINE_LOG_CATEGORY(LogWVModule);
 

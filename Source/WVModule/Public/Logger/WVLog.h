@@ -7,10 +7,10 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(WVLogger, All, All);
 
-#define WVLOG_INFO(strLog) FWVLog::GetInstance()->Info(strLog, true, true, 10);
-#define WVLOG_WARNING(strLog) FWVLog::GetInstance()->Warning(strLog, true, true, 10);
-#define WVLOG_FATAL(strLog) FWVLog::GetInstance()->Fatal(strLog, true, true, 10);
-#define WVLOG_ERROR(strLog) FWVLog::GetInstance()->Error(strLog, true, true, 10);
+#define WVLogI(fmt, ...) FWVLog::GetInstance()->Info(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
+#define WVLogW(fmt, ...) FWVLog::GetInstance()->Warning(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
+#define WVLogF(fmt, ...) FWVLog::GetInstance()->Fatal(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
+#define WVLogE(fmt, ...) FWVLog::GetInstance()->Error(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
 
 /**
  * 
@@ -32,7 +32,7 @@ private:
 	static TSharedPtr<FWVLog> _instance;
 
 private:
-	void init();
+	void Init();
 
 public:
 	~FWVLog();

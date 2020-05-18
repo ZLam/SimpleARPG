@@ -2,10 +2,12 @@
 
 
 #include "SimpleARPG/Public/Test/TestActor.h"
+#include "Engine/World.h"
 #include "WVModule/Public/Logger/WVLog.h"
 
 // Sets default values
-ATestActor::ATestActor()
+ATestActor::ATestActor():
+TmpStr(TEXT("I am TestActor"))
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -17,16 +19,25 @@ void ATestActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	WVLOG_INFO("info info info")
-	WVLOG_WARNING("warning warning warning")
-	// WVLOG_FATAL("fatal fatal fatal")
-	WVLOG_ERROR("err err err")
+	// WVLogI(TEXT("info info info"))
+	// WVLogW(TEXT("warning warning warning"))
+	// // WVLogF("fatal fatal fatal")
+	// WVLogE(TEXT("err err err"))
+
+	WVLogI(TEXT("ATestActor Class Begin"))
+	WVLogI(TEXT("%p"), ATestActor::StaticClass())
+	WVLogI(TEXT("%p"), ATestActor::StaticClass()->GetDefaultObject())
+	WVLogI(TEXT("%p"), ATestActor::GetClass())
+	WVLogI(TEXT("%p"), ATestActor::GetClass()->GetDefaultObject())
+	WVLogI(TEXT("ATestActor Class End"))
+
+	// GetWorld()->SpawnActor(ATestActor::StaticClass(), &FVector::ZeroVector, &FRotator::ZeroRotator);
+	// GetWorld()->SpawnActor(ATestActor2::StaticClass(), &FVector::ZeroVector, &FRotator::ZeroRotator);
 }
 
 // Called every frame
 void ATestActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

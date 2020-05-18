@@ -3,17 +3,20 @@
 
 #include "WVGameInstance.h"
 #include "WVModule.h"
-#include "WVModule/Public/Logger/WVLog.h"
+#include "Logger/WVLog.h"
+#include "ConfigUtil/WVConfigUtil.h"
 
 void UWVGameInstance::Init()
 {
 	UE_LOG(LogWVModule, Display, TEXT("===UWVGameInstance::Init==="));
 	
 	FWVLog::GetInstance();
+	UWVConfigUtil::GetInstance();
 }
 
 void UWVGameInstance::Shutdown()
 {
+	UWVConfigUtil::Cleanup();
 	FWVLog::Cleanup();
 
 	UE_LOG(LogWVModule, Display, TEXT("===UWVGameInstance::Shutdown==="));
