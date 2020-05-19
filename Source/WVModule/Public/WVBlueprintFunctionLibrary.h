@@ -6,15 +6,6 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "WVBlueprintFunctionLibrary.generated.h"
 
-UENUM(BlueprintType)
-enum class EWVLogVerbosity : uint8
-{
-	Info		UMETA(DisplayName = "Info"),
-	Warning		UMETA(DisplayName = "Warning"),
-	Fatal		UMETA(DisplayName = "Fatal"),
-	Error		UMETA(DisplayName = "Error"),
-};
-
 /**
  * 
  */

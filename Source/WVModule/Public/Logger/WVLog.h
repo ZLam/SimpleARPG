@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WVBlueprintFunctionLibrary.h"
+#include "WVLog.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(WVLogger, All, All);
 
@@ -11,6 +11,15 @@ DECLARE_LOG_CATEGORY_EXTERN(WVLogger, All, All);
 #define WVLogW(fmt, ...) FWVLog::GetInstance()->Warning(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
 #define WVLogF(fmt, ...) FWVLog::GetInstance()->Fatal(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
 #define WVLogE(fmt, ...) FWVLog::GetInstance()->Error(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
+
+UENUM(BlueprintType)
+enum class EWVLogVerbosity : uint8
+{
+	Info		UMETA(DisplayName = "Info"),
+	Warning		UMETA(DisplayName = "Warning"),
+	Fatal		UMETA(DisplayName = "Fatal"),
+	Error		UMETA(DisplayName = "Error"),
+};
 
 /**
  * 
