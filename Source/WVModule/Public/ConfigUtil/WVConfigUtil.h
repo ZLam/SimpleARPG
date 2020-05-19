@@ -84,7 +84,7 @@ void UWVConfigUtil::ForeachRow(EWVConfigName configName, TFunctionRef<void(const
 	{
 		return;
 	}
-	config->ForeachRow(nullptr, Predicate);
+	config->ForeachRow(nullptr, predicate);
 }
 
 
