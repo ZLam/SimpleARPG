@@ -23,4 +23,7 @@ private:
 
 	UFUNCTION()
 	void Btn_Test2_Callback();
+
+	UFUNCTION()
+	void Btn_TestEvent1_Callback();
 };

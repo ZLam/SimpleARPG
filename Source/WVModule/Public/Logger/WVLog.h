@@ -40,12 +40,10 @@ private:
 	TMap<EWVLogVerbosity, FColor> _logScreenColors;
 	static TSharedPtr<FWVLog> _instance;
 
-private:
+protected:
+	FWVLog();
 	void Init();
-
+	
 public:
 	~FWVLog();
-
-private:
-	FWVLog();
 };

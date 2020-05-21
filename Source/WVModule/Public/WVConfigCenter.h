@@ -58,6 +58,7 @@ public:
 	FWVConfig_ItemRow():
 	id(0),
 	type(EWVItemType::Money),
+	quality(EWVQualityType::White),
 	name(TEXT("")),
 	desc(TEXT("")),
 	icon(nullptr)

@@ -27,7 +27,7 @@ private:
 
 public:
 	UDataTable* GetConfig(EWVConfigName configName);
-
+	
 	template<typename T>
 	T* GetConfigRowData(EWVConfigName configName, const FName &rowName);
 
@@ -46,12 +46,12 @@ private:
 	void Init();
 
 public:
-	~UWVConfigUtil();
 	static UWVConfigUtil* GetInstance();
 	static void Cleanup();
 	
-private:
+protected:
 	UWVConfigUtil();
+	~UWVConfigUtil();
 };
 
 template <typename T>

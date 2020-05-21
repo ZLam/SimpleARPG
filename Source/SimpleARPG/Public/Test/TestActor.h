@@ -20,6 +20,9 @@ public:
 	AActor* TmpActor;
 	UPROPERTY(VisibleAnywhere)
 	UObject* TmpObj;
+
+	UFUNCTION()
+	void TestEvent();
 	
 public:	
 	// Sets default values for this actor's properties

@@ -3,10 +3,11 @@
 
 #include "SimpleARPG/Public/Test/TestUserWidget.h"
 #include "Components/Button.h"
-#include "SimpleARPG/Public/Test/TestActor.h"
-#include "WVModule/Public/Logger/WVLog.h"
+#include "Test/TestActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "WVModule/Public/Logger/WVLog.h"
 #include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
+#include "WVModule/Public/EventSys/WVEventDispatcher.h"
 
 void UTestUserWidget::NativeOnInitialized()
 {
@@ -21,6 +22,11 @@ void UTestUserWidget::NativeOnInitialized()
 	FScriptDelegate event_btn_test2;
 	event_btn_test2.BindUFunction(this, TEXT("Btn_Test2_Callback"));
 	btn_test2->OnClicked.Add(event_btn_test2);
+
+	auto btn_testEvent1 = Cast<UButton>(GetWidgetFromName(TEXT("btn_testEvent1")));
+	FScriptDelegate event_btn_testEvent1;
+	event_btn_testEvent1.BindUFunction(this, TEXT("Btn_TestEvent1_Callback"));
+	btn_testEvent1->OnClicked.Add(event_btn_testEvent1);
 }
 
 void UTestUserWidget::Btn_Test1_Callback()
@@ -98,7 +104,9 @@ void UTestUserWidget::Btn_Test1_Callback()
 
 
 
-	
+	/**
+	 * 遍历类型信息
+	 */
 	// for (TFieldIterator<UProperty> ite(ATestActor::StaticClass()); ite; ++ite)
 	// {
 	// 	UProperty *property = *ite;
@@ -153,23 +161,83 @@ void UTestUserWidget::Btn_Test2_Callback()
 	
 	// GetWorld()->SpawnActor(ATestActor::StaticClass(), &FVector::ZeroVector, &FRotator::ZeroRotator);
 
-	uint8 n1 = static_cast<uint8>(EWVConfigName::Item);
-	uint8 n2 = static_cast<uint8>(EWVConfigName::Shop);
 
-	UWVConfigUtil::GetInstance()->ForeachRow<FWVConfig_ItemRow>(
-		EWVConfigName::Item,
-		[](const FName& key, const FWVConfig_ItemRow& value)
+
+	
+	// UWVConfigUtil::GetInstance()->ForeachRow<FWVConfig_ItemRow>(
+	// 	EWVConfigName::Item,
+	// 	[](const FName& keyName, const FWVConfig_ItemRow& data)
+	// 	{
+	// 		WVLogI(
+	// 			TEXT("%s_%d_%s_%s_%s"),
+	// 			*keyName.ToString(),
+	// 			data.id,
+	// 			*data.name,
+	// 			*data.desc,
+	// 			*data.icon.ToSoftObjectPath().ToString()
+	// 		)
+	// 	}
+	// );
+
+
+
+	// TMap<int, TArray<int>> tMap = {
+	// 	{1, {1, 2, 3}},
+	// 	{3, {6, 7, 8}},
+	// 	{5, {0, 0, 0}},
+	// };
+	// for (auto v : tMap)
+	// {
+	// 	auto &arr = v.Value;
+	// 	WVLogI(TEXT("key : %d"), v.Key);
+	// 	for (auto v2 : arr)
+	// 	{
+	// 		WVLogI(TEXT("value : %d"), v2);
+	// 	}
+	// }
+
+
+
+	TDoubleLinkedList<int32> link;
+	link.AddTail(2);
+	link.AddTail(4);
+	link.AddTail(6);
+	link.AddTail(2);
+	link.AddTail(8);
+	link.AddTail(666);
+	link.AddTail(0);
+	link.AddTail(2);
+	auto ite = begin(link);
+	while (ite)
+	{
+		if (*ite == 2)
 		{
-			WVLogI(
-				TEXT("%s_%d_%s_%s_%s"),
-				*key.ToString(),
-				value.id,
-				*value.name,
-				*value.desc,
-				*value.icon.ToSoftObjectPath().ToString()
-			)
+			link.RemoveNode(ite.GetNode());
 		}
-	);
+		++ite;
+	}
+	ite = begin(link);
+	while (ite)
+	{
+		WVLogI(TEXT("%d"), (*ite))
+		++ite;
+	}
 
-	WVLogI(TEXT("%d, %d"), n1, n2);
+
+	WVLogI(
+		TEXT("event : %s"),
+		*UWVEventDispatcher::GetInstance()->GetEventSignature(EWVEventCategory::Inner, EWVEventName::TestActor)
+	);
+	WVLogI(
+		TEXT("event : %s"),
+		*WVEventSignature(TEXT("haha"), TEXT("CreateMainView"))
+	);
+	
+	
+}
+
+void UTestUserWidget::Btn_TestEvent1_Callback()
+{
+	auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent"));
+	UWVEventDispatcher::GetInstance()->FireEvent(sign);
 }

@@ -5,6 +5,7 @@
 #include "WVModule.h"
 #include "Logger/WVLog.h"
 #include "ConfigUtil/WVConfigUtil.h"
+#include "EventSys/WVEventDispatcher.h"
 
 void UWVGameInstance::Init()
 {
@@ -12,10 +13,12 @@ void UWVGameInstance::Init()
 	
 	FWVLog::GetInstance();
 	UWVConfigUtil::GetInstance();
+	UWVEventDispatcher::GetInstance();
 }
 
 void UWVGameInstance::Shutdown()
 {
+	UWVEventDispatcher::Cleanup();
 	UWVConfigUtil::Cleanup();
 	FWVLog::Cleanup();
 

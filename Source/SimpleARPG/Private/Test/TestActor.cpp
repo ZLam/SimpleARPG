@@ -4,6 +4,7 @@
 #include "SimpleARPG/Public/Test/TestActor.h"
 #include "Engine/World.h"
 #include "WVModule/Public/Logger/WVLog.h"
+#include "WVModule/Public/EventSys/WVEventDispatcher.h"
 
 // Sets default values
 ATestActor::ATestActor():
@@ -33,6 +34,9 @@ void ATestActor::BeginPlay()
 
 	// GetWorld()->SpawnActor(ATestActor::StaticClass(), &FVector::ZeroVector, &FRotator::ZeroRotator);
 	// GetWorld()->SpawnActor(ATestActor2::StaticClass(), &FVector::ZeroVector, &FRotator::ZeroRotator);
+
+	auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent"));
+	UWVEventDispatcher::GetInstance()->AddListener(sign, this, TEXT("TestEvent"));
 }
 
 // Called every frame
@@ -41,3 +45,7 @@ void ATestActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ATestActor::TestEvent()
+{
+	WVLogI(TEXT("ATestActor::TestEvent"))
+}
