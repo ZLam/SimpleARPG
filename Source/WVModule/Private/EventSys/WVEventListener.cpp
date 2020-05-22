@@ -6,6 +6,18 @@
 FWVEventListener::FWVEventListener(UObject* inCaller, const FString& inFuncName):
 caller(inCaller),
 funcName(inFuncName),
+func(nullptr),
+delegateOne(),
+validType(EWVEventListenerValid::None)
+{
+	UE_LOG(LogTemp, Display, TEXT("===FWVEventListener::FWVEventListener==="))
+}
+
+FWVEventListener::FWVEventListener(UObject* inCaller, FWVEventDelegate_One inDelegateOne):
+caller(inCaller),
+delegateOne(inDelegateOne),
+funcName(),
+func(nullptr),
 validType(EWVEventListenerValid::None)
 {
 	UE_LOG(LogTemp, Display, TEXT("===FWVEventListener::FWVEventListener==="))
@@ -16,20 +28,29 @@ FWVEventListener::~FWVEventListener()
 	UE_LOG(LogTemp, Display, TEXT("===FWVEventListener::~FWVEventListener==="))
 }
 
-EWVEventListenerValid FWVEventListener::IsValid()
+EWVEventListenerValid FWVEventListener::IsReady()
 {
-	if (validType != EWVEventListenerValid::None)
+	if (!IsValid(caller))
 	{
+		validType = EWVEventListenerValid::Fatal;
 		return validType;
 	}
-	validType = EWVEventListenerValid::Fatal;
-	if (caller && caller->IsValidLowLevel())
+	
+	if (validType == EWVEventListenerValid::None)
 	{
-		func = caller->FindFunction(FName(*funcName));
-		if (func)
+		if (delegateOne.IsBound())
 		{
-			validType = EWVEventListenerValid::FuncName;
+			validType = EWVEventListenerValid::Delegate;
+		}
+		else if (!funcName.IsEmpty())
+		{
+			func = caller->FindFunction(FName(*funcName));
+			if (func)
+			{
+				validType = EWVEventListenerValid::FuncName;
+			}
 		}
 	}
+	
 	return  validType;
 }

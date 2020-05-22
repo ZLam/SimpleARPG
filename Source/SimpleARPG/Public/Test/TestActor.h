@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WVModule/Public/EventSys/WVEventDelegate.h"
 #include "TestActor.generated.h"
 
 UCLASS()
@@ -21,8 +22,17 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UObject* TmpObj;
 
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* comp_staticMesh;
+
 	UFUNCTION()
 	void TestEvent();
+
+	UFUNCTION()
+	void TestEvent_Str(FString &str);
+
+	UFUNCTION()
+	void TestEvent_Delegate(FWVEventDelegateParams_One params);
 	
 public:	
 	// Sets default values for this actor's properties
@@ -31,6 +41,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	/** Overridable function called whenever this actor is being removed from a level */
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame

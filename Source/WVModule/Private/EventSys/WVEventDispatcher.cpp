@@ -65,10 +65,23 @@ void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* i
 	pHandle->Add(pListener);
 }
 
+void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* inCaller,
+	FWVEventDelegate_One inDelegateOne)
+{
+	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
+	if (!pHandle)
+	{
+		pHandle = NewObject<UWVEventHandler>();
+		_handlers.Add(inEventSignature, pHandle);
+	}
+	TSharedPtr<FWVEventListener> pListener = MakeShareable(new FWVEventListener(inCaller, inDelegateOne));
+	pHandle->Add(pListener);
+}
+
 void UWVEventDispatcher::RemoveListener(const FString& inEventSignature, UObject* inCaller)
 {
 	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
-	if (pHandle->IsValidLowLevel())
+	if (IsValid(pHandle))
 	{
 		pHandle->Delete(inCaller);
 	}
@@ -77,8 +90,53 @@ void UWVEventDispatcher::RemoveListener(const FString& inEventSignature, UObject
 void UWVEventDispatcher::FireEvent(const FString &inEventSignature)
 {
 	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
-	if (pHandle->IsValidLowLevel())
+	if (IsValid(pHandle))
 	{
 		pHandle->FireEvent();
+	}
+}
+
+void UWVEventDispatcher::FireEvent(const FString& inEventSignature, bool bVal)
+{
+	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
+	if (IsValid(pHandle))
+	{
+		pHandle->FireEvent(&bVal);
+	}
+}
+
+void UWVEventDispatcher::FireEvent(const FString& inEventSignature, int32 num)
+{
+	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
+	if (IsValid(pHandle))
+	{
+		pHandle->FireEvent(&num);
+	}
+}
+
+void UWVEventDispatcher::FireEvent(const FString& inEventSignature, float num)
+{
+	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
+	if (IsValid(pHandle))
+	{
+		pHandle->FireEvent(&num);
+	}
+}
+
+void UWVEventDispatcher::FireEvent(const FString& inEventSignature, FString str)
+{
+	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
+	if (IsValid(pHandle))
+	{
+		pHandle->FireEvent(&str);
+	}
+}
+
+void UWVEventDispatcher::FireEvent(const FString& inEventSignature, void* obj)
+{
+	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
+	if (IsValid(pHandle))
+	{
+		pHandle->FireEvent(obj);
 	}
 }

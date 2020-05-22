@@ -3,6 +3,7 @@
 
 #include "EventSys/WVEventHandler.h"
 #include "EventSys/WVEventListener.h"
+#include "Logger/WVLog.h"
 
 void UWVEventHandler::Add(TSharedPtr<FWVEventListener> listener)
 {
@@ -35,7 +36,7 @@ void UWVEventHandler::Delete(TSharedPtr<FWVEventListener> listener)
 	}
 }
 
-void UWVEventHandler::FireEvent()
+void UWVEventHandler::FireEvent(void* params)
 {
 	if (_listeners.Num() <= 0)
 	{
@@ -46,14 +47,17 @@ void UWVEventHandler::FireEvent()
 	{
 		if (listener.IsValid())
 		{
-			auto validType = listener->IsValid();
+			auto validType = listener->IsReady();
 			if (validType == EWVEventListenerValid::FuncName)
 			{
-				listener->caller->ProcessEvent(listener->func, nullptr);
+				listener->caller->ProcessEvent(listener->func, params);
 			}
 			else if (validType == EWVEventListenerValid::Delegate)
 			{
-				
+				FWVEventDelegateParams_One params_one;
+				params_one.data = nullptr;
+				params_one.dataPtr = params;
+				listener->delegateOne.ExecuteIfBound(params_one);
 			}
 			else if (validType == EWVEventListenerValid::Fatal || validType == EWVEventListenerValid::None)
 			{

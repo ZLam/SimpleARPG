@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Test/TestStructs.h"
 #include "TestUserWidget.generated.h"
 
 /**
@@ -18,6 +19,14 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 private:
+	FString str_testEvent;
+	
+	UFUNCTION()
+	void TestEvent_MultiParams(int32 &n32, float &fVal, bool &bVal, FString &str, UObject* obj);
+
+	UFUNCTION()
+	void TestEvent_MultiParams2(FTestMultiParamsEvent &data);
+	
 	UFUNCTION()
 	void Btn_Test1_Callback();
 
@@ -25,5 +34,11 @@ private:
 	void Btn_Test2_Callback();
 
 	UFUNCTION()
+	void Btn_Test3_Callback();
+
+	UFUNCTION()
 	void Btn_TestEvent1_Callback();
+
+	UFUNCTION()
+	void Btn_TestEvent2_Callback();
 };

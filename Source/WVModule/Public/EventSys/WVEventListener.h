@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EventSys/WVEventDelegate.h"
 #include "WVEventListener.generated.h"
 
 UENUM()
@@ -27,10 +28,12 @@ public:
 	FString funcName;
 	EWVEventListenerValid validType;
 	UFunction* func;
+	FWVEventDelegate_One delegateOne;
 
 	FWVEventListener() = default;
 	FWVEventListener(UObject* inCaller, const FString &inFuncName);
+	FWVEventListener(UObject* inCaller, FWVEventDelegate_One inDelegateOne);
 	~FWVEventListener();
 
-	EWVEventListenerValid IsValid();
+	EWVEventListenerValid IsReady();
 };

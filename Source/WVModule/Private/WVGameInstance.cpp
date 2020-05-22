@@ -14,6 +14,8 @@ void UWVGameInstance::Init()
 	FWVLog::GetInstance();
 	UWVConfigUtil::GetInstance();
 	UWVEventDispatcher::GetInstance();
+
+	UWVEventDispatcher::GetInstance()->SetupGameInstance(this);
 }
 
 void UWVGameInstance::Shutdown()

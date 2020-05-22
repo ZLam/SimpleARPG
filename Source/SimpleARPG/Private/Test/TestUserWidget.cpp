@@ -8,10 +8,13 @@
 #include "WVModule/Public/Logger/WVLog.h"
 #include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
+#include "Test/TestStructs.h"
 
 void UTestUserWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
+	str_testEvent = TEXT("de wu de aaaaaa!!!");
 
 	auto btn_test1 = Cast<UButton>(GetWidgetFromName(TEXT("btn_test1")));
 	FScriptDelegate event_btn_test1;
@@ -23,10 +26,32 @@ void UTestUserWidget::NativeOnInitialized()
 	event_btn_test2.BindUFunction(this, TEXT("Btn_Test2_Callback"));
 	btn_test2->OnClicked.Add(event_btn_test2);
 
+	auto btn_test3 = Cast<UButton>(GetWidgetFromName(TEXT("btn_test3")));
+	FScriptDelegate event_btn_test3;
+	event_btn_test3.BindUFunction(this, TEXT("Btn_Test3_Callback"));
+	btn_test3->OnClicked.Add(event_btn_test3);
+
 	auto btn_testEvent1 = Cast<UButton>(GetWidgetFromName(TEXT("btn_testEvent1")));
 	FScriptDelegate event_btn_testEvent1;
 	event_btn_testEvent1.BindUFunction(this, TEXT("Btn_TestEvent1_Callback"));
 	btn_testEvent1->OnClicked.Add(event_btn_testEvent1);
+
+	auto btn_testEvent2 = Cast<UButton>(GetWidgetFromName(TEXT("btn_testEvent2")));
+	FScriptDelegate event_btn_testEvent2;
+	event_btn_testEvent2.BindUFunction(this, TEXT("Btn_TestEvent2_Callback"));
+	btn_testEvent2->OnClicked.Add(event_btn_testEvent2);
+}
+
+void UTestUserWidget::TestEvent_MultiParams(int32 &n32, float &fVal, bool &bVal, FString &str, UObject* obj)
+{
+	WVLogI(TEXT("UTestUserWidget::TestEvent_MultiParams"))
+	WVLogI(TEXT("%d_%f_%d_%s_%p"), n32, fVal, bVal, *str, obj);
+}
+
+void UTestUserWidget::TestEvent_MultiParams2(FTestMultiParamsEvent& data)
+{
+	WVLogI(TEXT("UTestUserWidget::TestEvent_MultiParams2"))
+	WVLogI(TEXT("%d_%f_%d_%s_%p"), data.num_int32, data.num_float, data.bVal, *(data.str), data.obj);
 }
 
 void UTestUserWidget::Btn_Test1_Callback()
@@ -140,7 +165,7 @@ void UTestUserWidget::Btn_Test1_Callback()
 		
 		if (var_tmpStr)
 		{
-			WVLogI(*var_tmpStr->GetFullName());
+			WVLogI(*(var_tmpStr->GetFullName()));
 			UStrProperty *tVar = Cast<UStrProperty>(var_tmpStr);
 			if (tVar)
 			{
@@ -198,46 +223,91 @@ void UTestUserWidget::Btn_Test2_Callback()
 
 
 
-	TDoubleLinkedList<int32> link;
-	link.AddTail(2);
-	link.AddTail(4);
-	link.AddTail(6);
-	link.AddTail(2);
-	link.AddTail(8);
-	link.AddTail(666);
-	link.AddTail(0);
-	link.AddTail(2);
-	auto ite = begin(link);
-	while (ite)
-	{
-		if (*ite == 2)
-		{
-			link.RemoveNode(ite.GetNode());
-		}
-		++ite;
-	}
-	ite = begin(link);
-	while (ite)
-	{
-		WVLogI(TEXT("%d"), (*ite))
-		++ite;
-	}
+	// TDoubleLinkedList<int32> link;
+	// link.AddTail(2);
+	// link.AddTail(4);
+	// link.AddTail(6);
+	// link.AddTail(2);
+	// link.AddTail(8);
+	// link.AddTail(666);
+	// link.AddTail(0);
+	// link.AddTail(2);
+	// auto ite = begin(link);
+	// while (ite)
+	// {
+	// 	if (*ite == 2)
+	// 	{
+	// 		link.RemoveNode(ite.GetNode());
+	// 	}
+	// 	++ite;
+	// }
+	// ite = begin(link);
+	// while (ite)
+	// {
+	// 	WVLogI(TEXT("%d"), (*ite))
+	// 	++ite;
+	// }
 
 
-	WVLogI(
-		TEXT("event : %s"),
-		*UWVEventDispatcher::GetInstance()->GetEventSignature(EWVEventCategory::Inner, EWVEventName::TestActor)
-	);
-	WVLogI(
-		TEXT("event : %s"),
-		*WVEventSignature(TEXT("haha"), TEXT("CreateMainView"))
-	);
+	// WVLogI(
+	// 	TEXT("event : %s"),
+	// 	*UWVEventDispatcher::GetInstance()->GetEventSignature(EWVEventCategory::Inner, EWVEventName::TestActor)
+	// );
+	// WVLogI(
+	// 	TEXT("event : %s"),
+	// 	*WVEventSignature(TEXT("haha"), TEXT("CreateMainView"))
+	// );
 	
 	
+}
+
+void UTestUserWidget::Btn_Test3_Callback()
+{
+	// static FVector pos;
+	// pos.X += 100;
+	// pos.Y += 100;
+	// GetWorld()->SpawnActor(ATestActor::StaticClass(), &pos, &FRotator::ZeroRotator);
+
+
+
+	WVLogI(*str_testEvent);
 }
 
 void UTestUserWidget::Btn_TestEvent1_Callback()
 {
 	auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent"));
 	UWVEventDispatcher::GetInstance()->FireEvent(sign);
+}
+
+void UTestUserWidget::Btn_TestEvent2_Callback()
+{
+	auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent_Str"));
+	UWVEventDispatcher::GetInstance()->FireEvent(sign, str_testEvent);
+
+	auto sign2 = WVEventSignature(TEXT("Haha"), TEXT("TestEvent_Delegate"));
+	UWVEventDispatcher::GetInstance()->FireEvent(sign2);
+
+	/**
+	 * 虽然传的是结构体，但到了UFUNCTION那边函数参数都能分开传入
+	 */
+	// UFunction *tFunc = FindFunction(TEXT("TestEvent_MultiParams"));
+	// FTestMultiParamsEvent multiParams;
+	// multiParams.obj = this;
+	// multiParams.bVal = true;
+	// multiParams.str = TEXT("hahaha");
+	// multiParams.num_float = 1.234;
+	// multiParams.num_int32 = 666;
+	// ProcessEvent(tFunc, &multiParams);
+	/**
+	 * 这个也可以，UFUNCTION那边一整个结构体作为参数传入一样行
+	 * 可能跟cpp结构体的特性有关，而且其实能以offset取回返回值，返回参数也行，具体Google
+	 */
+	// UFunction *tFunc2 = FindFunction(TEXT("TestEvent_MultiParams2"));
+	// FTestMultiParamsEvent multiParams2;
+	// multiParams2.obj = this;
+	// multiParams2.bVal = false;
+	// multiParams2.str = TEXT("xixixixi");
+	// multiParams2.num_float = 6.789;
+	// multiParams2.num_int32 = 1024;
+	// ProcessEvent(tFunc2, &multiParams2);
 }

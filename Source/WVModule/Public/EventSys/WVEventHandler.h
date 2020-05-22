@@ -32,5 +32,5 @@ public:
 	void Add(TSharedPtr<FWVEventListener> listener);
 	void Delete(UObject* inObj);
 	void Delete(TSharedPtr<FWVEventListener> listener);
-	void FireEvent();
+	void FireEvent(void* params = nullptr);
 };
