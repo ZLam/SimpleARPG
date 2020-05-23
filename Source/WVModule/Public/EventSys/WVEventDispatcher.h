@@ -78,6 +78,8 @@ public:
 
 	void FireEvent(const FString &inEventSignature, void *obj);
 
+	void FireEvent_BP(FWVEventParams_BP &params_bp);
+
 protected:
 	void Init();
 

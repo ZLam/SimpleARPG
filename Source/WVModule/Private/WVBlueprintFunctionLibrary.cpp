@@ -3,7 +3,6 @@
 
 #include "WVBlueprintFunctionLibrary.h"
 #include "Logger/WVLog.h"
-#include "EventSys/WVEventDispatcher.h"
 
 void UWVBlueprintFunctionLibrary::LogI(const FString& strLog, bool bPrintToLog, bool bPrintToScreen, float duration)
 {
@@ -65,4 +64,7 @@ void UWVBlueprintFunctionLibrary::FireEvent_SP(EWVEventCategory inCategory, EWVE
 	UWVEventDispatcher::GetInstance()->FireEvent(eventSign);
 }
 
-
+void UWVBlueprintFunctionLibrary::FireEvent_OneParams(const FString& inEventSignature, UProperty* params)
+{
+	//this never gets called due to custom thunk
+}

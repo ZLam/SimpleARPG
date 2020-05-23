@@ -5,6 +5,7 @@
 #include "WVModule.h"
 #include "EventSys/WVEventListener.h"
 #include "EventSys/WVEventHandler.h"
+#include "Logger/WVLog.h"
 
 UWVEventDispatcher* UWVEventDispatcher::_instance = nullptr;
 
@@ -200,4 +201,9 @@ void UWVEventDispatcher::FireEvent(const FString& inEventSignature, void* obj)
 	{
 		pHandle->FireEvent(obj);
 	}
+}
+
+void UWVEventDispatcher::FireEvent_BP(FWVEventParams_BP &params_bp)
+{
+	WVLogI(TEXT("%s_%p_%p"), *params_bp.eventSignature, params_bp.propertyInfoPtr, params_bp.propertyPtr)
 }

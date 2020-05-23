@@ -14,10 +14,17 @@ struct WVMODULE_API FWVEventDelegateParams_One
 {
 	GENERATED_USTRUCT_BODY()
 
-		UPROPERTY()
-		UProperty* data;
+	UPROPERTY()
+	UProperty* data;
 
 	void* dataPtr;
+};
+
+struct WVMODULE_API FWVEventParams_BP
+{
+	FString eventSignature;
+	UProperty *propertyInfoPtr;
+	void *propertyPtr;
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FWVEventDelegate_One, const FWVEventDelegateParams_One&, obj);
