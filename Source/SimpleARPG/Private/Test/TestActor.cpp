@@ -58,8 +58,11 @@ void ATestActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent"));
-	UWVEventDispatcher::GetInstance()->RemoveListener(sign, this);
+	// auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent"));
+	// UWVEventDispatcher::GetInstance()->RemoveListener(sign, this);
+
+
+	UWVEventDispatcher::GetInstance()->RemoveAllListener(this);
 }
 
 // Called every frame
@@ -76,11 +79,16 @@ void ATestActor::TestEvent()
 void ATestActor::TestEvent_Str(FString &str)
 {
 	WVLogI(TEXT("ATestActor::TestEvent_Str_%s"), *str);
-	str = "change la la la";
+	str = TEXT("change la la la");
 	WVLogI(TEXT("ATestActor::TestEvent_Str_%s"), *str);
 }
 
 void ATestActor::TestEvent_Delegate(FWVEventDelegateParams_One params)
 {
-	WVLogI(TEXT("ATestActor::TestEvent_Delegate"))
+	if (params.dataPtr)
+	{
+		WVLogI(TEXT("ATestActor::TestEvent_Delegate_%s"), *(*(FString*)(params.dataPtr)));
+		(*(FString*)(params.dataPtr)) = TEXT("change he he he");
+		WVLogI(TEXT("ATestActor::TestEvent_Delegate_%s"), *(*(FString*)(params.dataPtr)));
+	}
 }

@@ -182,7 +182,7 @@ void UTestUserWidget::Btn_Test1_Callback()
 
 void UTestUserWidget::Btn_Test2_Callback()
 {
-	WVLogI(TEXT("UTestUserWidget::Btn_Test1_Callback"));
+	WVLogI(TEXT("UTestUserWidget::Btn_Test2_Callback"));
 	
 	// GetWorld()->SpawnActor(ATestActor::StaticClass(), &FVector::ZeroVector, &FRotator::ZeroRotator);
 
@@ -222,6 +222,39 @@ void UTestUserWidget::Btn_Test2_Callback()
 	// }
 
 
+	// TMap<int, TArray<FString>> tMap;
+	// auto &arr = tMap.FindOrAdd(1);
+	// arr.Add(TEXT("111"));
+	// arr.Add(TEXT("222"));
+	// arr.Add(TEXT("333"));
+	// for (auto ite = tMap.CreateConstIterator(); ite; ++ite)
+	// {
+	// 	WVLogI(TEXT("k : %d"), ite.Key());
+	// 	auto &tArr = ite.Value();
+	// 	if (tArr.Num() > 0)
+	// 	{
+	// 		for (auto &v : tArr)
+	// 		{
+	// 			WVLogI(TEXT("v : %s"), *v);
+	// 		}
+	// 	}
+	// }
+	// tMap.Remove(1);
+	// for (auto ite = tMap.CreateConstIterator(); ite; ++ite)
+	// {
+	// 	WVLogI(TEXT("k : %d"), ite.Key());
+	// 	auto &tArr = ite.Value();
+	// 	if (tArr.Num() > 0)
+	// 	{
+	// 		for (auto &v : tArr)
+	// 		{
+	// 			WVLogI(TEXT("v : %s"), *v);
+	// 		}
+	// 	}
+	// }
+	
+	
+
 
 	// TDoubleLinkedList<int32> link;
 	// link.AddTail(2);
@@ -249,6 +282,9 @@ void UTestUserWidget::Btn_Test2_Callback()
 	// }
 
 
+	
+	
+
 	// WVLogI(
 	// 	TEXT("event : %s"),
 	// 	*UWVEventDispatcher::GetInstance()->GetEventSignature(EWVEventCategory::Inner, EWVEventName::TestActor)
@@ -263,6 +299,8 @@ void UTestUserWidget::Btn_Test2_Callback()
 
 void UTestUserWidget::Btn_Test3_Callback()
 {
+	WVLogI(TEXT("UTestUserWidget::Btn_Test3_Callback"));
+	
 	// static FVector pos;
 	// pos.X += 100;
 	// pos.Y += 100;
@@ -285,7 +323,7 @@ void UTestUserWidget::Btn_TestEvent2_Callback()
 	UWVEventDispatcher::GetInstance()->FireEvent(sign, str_testEvent);
 
 	auto sign2 = WVEventSignature(TEXT("Haha"), TEXT("TestEvent_Delegate"));
-	UWVEventDispatcher::GetInstance()->FireEvent(sign2);
+	UWVEventDispatcher::GetInstance()->FireEvent(sign2, str_testEvent);
 
 	/**
 	 * 虽然传的是结构体，但到了UFUNCTION那边函数参数都能分开传入
@@ -310,4 +348,5 @@ void UTestUserWidget::Btn_TestEvent2_Callback()
 	// multiParams2.num_float = 6.789;
 	// multiParams2.num_int32 = 1024;
 	// ProcessEvent(tFunc2, &multiParams2);
+	
 }

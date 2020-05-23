@@ -28,6 +28,8 @@ protected:
 	UPROPERTY()
 	TMap<FString, UWVEventHandler*> _handlers;
 
+	TMap<UObject*, TArray<FString>> _registedEvents;
+
 	UGameInstance *_gameIns;
 	
 public:
@@ -47,8 +49,22 @@ public:
 	void AddListener(const FString &inEventSignature, UObject *inCaller, const FString &inFuncName);
 
 	void AddListener(const FString &inEventSignature, UObject *inCaller, FWVEventDelegate_One inDelegateOne);
+
+	void AddListener(EWVEventCategory inCategory, EWVEventName inEventName, UObject *inCaller, const FString &inFuncName);
+
+	void AddListener(EWVEventCategory inCategory, EWVEventName inEventName, UObject *inCaller, FWVEventDelegate_One inDelegateOne);
 	
 	void RemoveListener(const FString &inEventSignature, UObject *inCaller);
+
+	void _RemoveListener(const FString &inEventSignature, UObject *inCaller);
+
+	void RemoveAllListener(UObject *inCaller);
+
+	void RegistEvent(UObject *inCaller, const FString &inEventSignature);
+
+	void UnRegistEvent(UObject *inCaller, const FString &inEventSignature);
+
+	void UnRegistAllEvent(UObject *inCaller);
 
 	void FireEvent(const FString &inEventSignature);
 

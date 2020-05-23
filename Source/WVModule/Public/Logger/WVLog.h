@@ -7,10 +7,12 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(WVLogger, All, All);
 
-#define WVLogI(fmt, ...) FWVLog::GetInstance()->Info(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
-#define WVLogW(fmt, ...) FWVLog::GetInstance()->Warning(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
-#define WVLogF(fmt, ...) FWVLog::GetInstance()->Fatal(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
-#define WVLogE(fmt, ...) FWVLog::GetInstance()->Error(FString::Printf(fmt, __VA_ARGS__), true, true, 10);
+#define WVLogScreenDuration 10
+
+#define WVLogI(fmt, ...) FWVLog::GetInstance()->Info(FString::Printf(fmt, __VA_ARGS__), true, true, WVLogScreenDuration);
+#define WVLogW(fmt, ...) FWVLog::GetInstance()->Warning(FString::Printf(fmt, __VA_ARGS__), true, true, WVLogScreenDuration);
+#define WVLogF(fmt, ...) FWVLog::GetInstance()->Fatal(FString::Printf(fmt, __VA_ARGS__), true, true, WVLogScreenDuration);
+#define WVLogE(fmt, ...) FWVLog::GetInstance()->Error(FString::Printf(fmt, __VA_ARGS__), true, true, WVLogScreenDuration);
 
 UENUM(BlueprintType)
 enum class EWVLogVerbosity : uint8

@@ -11,7 +11,8 @@ UWVEventDispatcher* UWVEventDispatcher::_instance = nullptr;
 UWVEventDispatcher::UWVEventDispatcher():
 _categoryNames(),
 _eventNames(),
-_handlers()
+_handlers(),
+_registedEvents()
 {
 	UE_LOG(LogWVModule, Display, TEXT("===UWVEventDispatcher::UWVEventDispatcher==="))
 }
@@ -63,6 +64,8 @@ void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* i
 	}
 	TSharedPtr<FWVEventListener> pListener = MakeShareable(new FWVEventListener(inCaller, inFuncName));
 	pHandle->Add(pListener);
+
+	RegistEvent(inCaller, inEventSignature);
 }
 
 void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* inCaller,
@@ -76,15 +79,73 @@ void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* i
 	}
 	TSharedPtr<FWVEventListener> pListener = MakeShareable(new FWVEventListener(inCaller, inDelegateOne));
 	pHandle->Add(pListener);
+
+	RegistEvent(inCaller, inEventSignature);
 }
 
-void UWVEventDispatcher::RemoveListener(const FString& inEventSignature, UObject* inCaller)
+void UWVEventDispatcher::AddListener(EWVEventCategory inCategory, EWVEventName inEventName, UObject* inCaller,
+	const FString& inFuncName)
+{
+	FString eventSignature = GetEventSignature(inCategory, inEventName);
+	AddListener(eventSignature, inCaller, inFuncName);
+}
+
+void UWVEventDispatcher::AddListener(EWVEventCategory inCategory, EWVEventName inEventName, UObject* inCaller,
+	FWVEventDelegate_One inDelegateOne)
+{
+	FString eventSignature = GetEventSignature(inCategory, inEventName);
+	AddListener(eventSignature, inCaller, inDelegateOne);
+}
+
+void UWVEventDispatcher::_RemoveListener(const FString& inEventSignature, UObject* inCaller)
 {
 	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
 	if (IsValid(pHandle))
 	{
 		pHandle->Delete(inCaller);
 	}
+}
+
+void UWVEventDispatcher::RemoveListener(const FString& inEventSignature, UObject* inCaller)
+{
+	_RemoveListener(inEventSignature, inCaller);
+
+	UnRegistEvent(inCaller, inEventSignature);
+}
+
+void UWVEventDispatcher::RemoveAllListener(UObject *inCaller)
+{
+	auto events = _registedEvents.Find(inCaller);
+
+	if (events && events->Num() > 0)
+	{
+		for (auto &eventSignature : *events)
+		{
+			_RemoveListener(eventSignature, inCaller);
+		}
+	}
+	
+	UnRegistAllEvent(inCaller);
+}
+
+void UWVEventDispatcher::RegistEvent(UObject* inCaller, const FString& inEventSignature)
+{
+	auto &events = _registedEvents.FindOrAdd(inCaller);
+	events.Add(inEventSignature);
+}
+
+void UWVEventDispatcher::UnRegistEvent(UObject* inCaller, const FString& inEventSignature)
+{
+	auto events = _registedEvents.Find(inCaller);
+	if (events)
+	{
+		events->Remove(inEventSignature);
+	}
+}
+
+void UWVEventDispatcher::UnRegistAllEvent(UObject* inCaller)
+{
+	_registedEvents.Remove(inCaller);
 }
 
 void UWVEventDispatcher::FireEvent(const FString &inEventSignature)
