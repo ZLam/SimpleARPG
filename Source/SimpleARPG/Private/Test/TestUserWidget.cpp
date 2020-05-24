@@ -165,7 +165,7 @@ void UTestUserWidget::Btn_Test1_Callback()
 		
 		if (var_tmpStr)
 		{
-			WVLogI(*(var_tmpStr->GetFullName()));
+			WVLogI(TEXT("%s"), *(var_tmpStr->GetFullName()));
 			UStrProperty *tVar = Cast<UStrProperty>(var_tmpStr);
 			if (tVar)
 			{
@@ -307,8 +307,14 @@ void UTestUserWidget::Btn_Test3_Callback()
 	// GetWorld()->SpawnActor(ATestActor::StaticClass(), &pos, &FRotator::ZeroRotator);
 
 
+	// auto str = FString::Printf(TEXT("%s_%d_%s"), *FString(__FUNCTION__), __LINE__, *FString(__FILE__));
+	// WVLogI(*str)
 
-	WVLogI(*str_testEvent);
+
+	WVLogI(TEXT("%s"), *WVLog_Location)
+	
+
+	WVLogI(TEXT("%s"), *str_testEvent);
 }
 
 void UTestUserWidget::Btn_TestEvent1_Callback()

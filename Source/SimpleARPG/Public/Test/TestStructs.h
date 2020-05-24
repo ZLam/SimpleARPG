@@ -17,5 +17,5 @@ struct FTestMultiParamsEvent
 	float num_float;
 	bool bVal;
 	FString str;
-	UObject* obj;
+	UObject *obj;
 };

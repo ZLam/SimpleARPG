@@ -5,7 +5,15 @@
 #include "CoreMinimal.h"
 #include "WVEventHandler.generated.h"
 
+struct FWVEventParams_BP;
 struct FWVEventListener;
+
+UENUM()
+enum class EWVEventHandlerRet : uint8
+{
+	Fail,
+	Success,
+};
 
 /**
  *
@@ -32,5 +40,6 @@ public:
 	void Add(TSharedPtr<FWVEventListener> listener);
 	void Delete(UObject* inObj);
 	void Delete(TSharedPtr<FWVEventListener> listener);
-	void FireEvent(void* params = nullptr);
+	EWVEventHandlerRet FireEvent(void* params = nullptr);
+	EWVEventHandlerRet FireEvent_BP(FWVEventParams_BP &params_bp);
 };

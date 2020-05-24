@@ -7,6 +7,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(WVLogger, All, All);
 
+#define WVLog_Location (FString::Printf(TEXT("%s : %d"), *FString(__FUNCTION__), __LINE__))
+
 #define WVLogScreenDuration 10
 
 #define WVLogI(fmt, ...) FWVLog::GetInstance()->Info(FString::Printf(fmt, __VA_ARGS__), true, true, WVLogScreenDuration);

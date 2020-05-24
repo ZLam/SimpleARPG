@@ -4,6 +4,20 @@
 #include "WVBlueprintFunctionLibrary.h"
 #include "Logger/WVLog.h"
 
+void UWVBlueprintFunctionLibrary::FuncParamsOfProperties(UFunction* inFunc, TArray<UProperty*> &outArr)
+{
+	if (!inFunc)
+	{
+		return;
+	}
+	TFieldIterator<UProperty> ite(inFunc);
+	while ((ite) && (ite->PropertyFlags & CPF_Parm))
+	{
+		outArr.Add(*ite);
+		++ite;
+	}
+}
+
 void UWVBlueprintFunctionLibrary::LogI(const FString& strLog, bool bPrintToLog, bool bPrintToScreen, float duration)
 {
 	FWVLog::GetInstance()->Info(strLog, bPrintToLog, bPrintToScreen, duration);

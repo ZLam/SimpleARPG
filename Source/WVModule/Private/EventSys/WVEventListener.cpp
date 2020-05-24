@@ -2,23 +2,24 @@
 
 
 #include "EventSys/WVEventListener.h"
+#include "WVBlueprintFunctionLibrary.h"
 
 FWVEventListener::FWVEventListener(UObject* inCaller, const FString& inFuncName):
 caller(inCaller),
 funcName(inFuncName),
+validType(EWVEventListenerValid::None),
 func(nullptr),
-delegateOne(),
-validType(EWVEventListenerValid::None)
+delegateOne()
 {
 	UE_LOG(LogTemp, Display, TEXT("===FWVEventListener::FWVEventListener==="))
 }
 
 FWVEventListener::FWVEventListener(UObject* inCaller, FWVEventDelegate_One inDelegateOne):
 caller(inCaller),
-delegateOne(inDelegateOne),
 funcName(),
+validType(EWVEventListenerValid::None),
 func(nullptr),
-validType(EWVEventListenerValid::None)
+delegateOne(inDelegateOne)
 {
 	UE_LOG(LogTemp, Display, TEXT("===FWVEventListener::FWVEventListener==="))
 }
@@ -53,4 +54,35 @@ EWVEventListenerValid FWVEventListener::IsReady()
 	}
 	
 	return  validType;
+}
+
+bool FWVEventListener::IsTypeFuncParamsFirst(const FString& strType)
+{
+	bool ret = false;
+	if (IsReady() == EWVEventListenerValid::FuncName)
+	{
+		TArray<UProperty*> arr;
+		UWVBlueprintFunctionLibrary::FuncParamsOfProperties(func, arr);
+		if (arr.Num() > 0)
+		{
+			ret = arr[0]->GetCPPType() == strType;
+		}
+	}
+	return ret;
+}
+
+bool FWVEventListener::IsClassFuncParamsFirst(UClass* cls)
+{
+	bool ret = false;
+	if (IsReady() == EWVEventListenerValid::FuncName)
+	{
+		TArray<UProperty*> arr;
+		UWVBlueprintFunctionLibrary::FuncParamsOfProperties(func, arr);
+		if (arr.Num() > 0)
+		{
+			ret = arr[0]->GetClass()->IsChildOf(cls);
+			// ret = arr[0]->StaticClass()->IsChildOf(cls);
+		}
+	}
+	return ret;
 }

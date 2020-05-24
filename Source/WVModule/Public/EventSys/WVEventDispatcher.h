@@ -60,9 +60,9 @@ public:
 
 	void RemoveAllListener(UObject *inCaller);
 
-	void RegistEvent(UObject *inCaller, const FString &inEventSignature);
+	void RegistEvent(const FString &inEventSignature, UObject *inCaller);
 
-	void UnRegistEvent(UObject *inCaller, const FString &inEventSignature);
+	void UnRegistEvent(const FString &inEventSignature, UObject *inCaller);
 
 	void UnRegistAllEvent(UObject *inCaller);
 
@@ -78,7 +78,7 @@ public:
 
 	void FireEvent(const FString &inEventSignature, void *obj);
 
-	void FireEvent_BP(FWVEventParams_BP &params_bp);
+	void FireEvent_BP(const FString &inEventSignature, FWVEventParams_BP &params_bp);
 
 protected:
 	void Init();

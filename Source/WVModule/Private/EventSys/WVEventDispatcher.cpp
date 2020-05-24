@@ -66,7 +66,7 @@ void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* i
 	TSharedPtr<FWVEventListener> pListener = MakeShareable(new FWVEventListener(inCaller, inFuncName));
 	pHandle->Add(pListener);
 
-	RegistEvent(inCaller, inEventSignature);
+	RegistEvent(inEventSignature, inCaller);
 }
 
 void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* inCaller,
@@ -81,7 +81,7 @@ void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* i
 	TSharedPtr<FWVEventListener> pListener = MakeShareable(new FWVEventListener(inCaller, inDelegateOne));
 	pHandle->Add(pListener);
 
-	RegistEvent(inCaller, inEventSignature);
+	RegistEvent(inEventSignature, inCaller);
 }
 
 void UWVEventDispatcher::AddListener(EWVEventCategory inCategory, EWVEventName inEventName, UObject* inCaller,
@@ -111,7 +111,7 @@ void UWVEventDispatcher::RemoveListener(const FString& inEventSignature, UObject
 {
 	_RemoveListener(inEventSignature, inCaller);
 
-	UnRegistEvent(inCaller, inEventSignature);
+	UnRegistEvent(inEventSignature, inCaller);
 }
 
 void UWVEventDispatcher::RemoveAllListener(UObject *inCaller)
@@ -129,13 +129,13 @@ void UWVEventDispatcher::RemoveAllListener(UObject *inCaller)
 	UnRegistAllEvent(inCaller);
 }
 
-void UWVEventDispatcher::RegistEvent(UObject* inCaller, const FString& inEventSignature)
+void UWVEventDispatcher::RegistEvent(const FString& inEventSignature, UObject* inCaller)
 {
 	auto &events = _registedEvents.FindOrAdd(inCaller);
 	events.Add(inEventSignature);
 }
 
-void UWVEventDispatcher::UnRegistEvent(UObject* inCaller, const FString& inEventSignature)
+void UWVEventDispatcher::UnRegistEvent(const FString& inEventSignature, UObject* inCaller)
 {
 	auto events = _registedEvents.Find(inCaller);
 	if (events)
@@ -203,7 +203,15 @@ void UWVEventDispatcher::FireEvent(const FString& inEventSignature, void* obj)
 	}
 }
 
-void UWVEventDispatcher::FireEvent_BP(FWVEventParams_BP &params_bp)
+void UWVEventDispatcher::FireEvent_BP(const FString &inEventSignature, FWVEventParams_BP &params_bp)
 {
-	WVLogI(TEXT("%s_%p_%p"), *params_bp.eventSignature, params_bp.propertyInfoPtr, params_bp.propertyPtr)
+	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
+	if (IsValid(pHandle))
+	{
+		auto ret = pHandle->FireEvent_BP(params_bp);
+		if (ret == EWVEventHandlerRet::Fail)
+		{
+			WVLogW(TEXT("fire event'%s' fail"), *inEventSignature)
+		}
+	}
 }

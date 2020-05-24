@@ -15,14 +15,13 @@ struct WVMODULE_API FWVEventDelegateParams_One
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY()
-	UProperty* data;
+	UProperty* dataInfoPtr;
 
 	void* dataPtr;
 };
 
 struct WVMODULE_API FWVEventParams_BP
 {
-	FString eventSignature;
 	UProperty *propertyInfoPtr;
 	void *propertyPtr;
 };

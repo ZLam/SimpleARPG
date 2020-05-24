@@ -36,4 +36,14 @@ public:
 	~FWVEventListener();
 
 	EWVEventListenerValid IsReady();
+
+	/**
+	 * 判断func第一个参数是否为某类型
+	 */
+	bool IsTypeFuncParamsFirst(const FString &strType);
+
+	/**
+	 * 判断func第一个参数是否为某类或其子类
+	 */
+	bool IsClassFuncParamsFirst(UClass *cls);
 };

@@ -17,6 +17,13 @@ class WVMODULE_API UWVBlueprintFunctionLibrary : public UBlueprintFunctionLibrar
 {
 	GENERATED_BODY()
 
+public:
+
+	/**
+	 * 把参数的UProperty取出来
+	 */
+	static void FuncParamsOfProperties(UFunction *inFunc, TArray<UProperty*> &outArr);
+
 	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "1"))
 	static void LogI(const FString &strLog, bool bPrintToLog = true, bool bPrintToScreen = true, float duration = 10);
 
@@ -68,6 +75,7 @@ class WVMODULE_API UWVBlueprintFunctionLibrary : public UBlueprintFunctionLibrar
 		Stack.MostRecentProperty = nullptr;
 
 		FWVEventParams_BP params_bp;
+		FString eventSignature;
 
 		/**
 		 * 把数据取出来
@@ -75,7 +83,7 @@ class WVMODULE_API UWVBlueprintFunctionLibrary : public UBlueprintFunctionLibrar
 		 *		1：执行字节码（堆栈环境里执行一次，然后有数据就返回出嚟？字节码里有操作也有数据？）
 		 *		2：PropertyChainForCompiledIn属性里有数据
 		 */
-		Stack.StepCompiledIn<UStrProperty>(&params_bp.eventSignature);
+		Stack.StepCompiledIn<UStrProperty>(&eventSignature);
 
 		/**
 		 * 在堆栈环境里执行一次？
@@ -89,7 +97,7 @@ class WVMODULE_API UWVBlueprintFunctionLibrary : public UBlueprintFunctionLibrar
 
 		P_FINISH;
 		P_NATIVE_BEGIN;
-		UWVEventDispatcher::GetInstance()->FireEvent_BP(params_bp);
+		UWVEventDispatcher::GetInstance()->FireEvent_BP(eventSignature, params_bp);
 		P_NATIVE_END;
 	}
 };
