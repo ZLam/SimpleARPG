@@ -10,10 +10,11 @@
 
 // Sets default values
 ATestActor::ATestActor():
-TmpStr(TEXT("I am TestActor"))
+TmpStr(TEXT("I am TestActor")),
+bTmp(false)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	// PrimaryActorTick.bCanEverTick = true;
 
 	USceneComponent* comp_scene = CreateDefaultSubobject<USceneComponent>(TEXT("comp_scene"));
 	RootComponent = comp_scene;
@@ -62,7 +63,7 @@ void ATestActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	// UWVEventDispatcher::GetInstance()->RemoveListener(sign, this);
 
 
-	UWVEventDispatcher::GetInstance()->RemoveAllListener(this);
+	// UWVEventDispatcher::GetInstance()->RemoveAllListener(this);
 }
 
 // Called every frame

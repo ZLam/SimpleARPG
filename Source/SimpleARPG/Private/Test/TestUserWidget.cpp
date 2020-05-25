@@ -8,6 +8,7 @@
 #include "WVModule/Public/Logger/WVLog.h"
 #include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
+#include "WVModule/Public/WVModelCenter.h"
 #include "Test/TestStructs.h"
 
 void UTestUserWidget::NativeOnInitialized()
@@ -139,6 +140,16 @@ void UTestUserWidget::Btn_Test1_Callback()
 	// 	FString type = property->GetCPPType();
 	// 	WVLogI(TEXT("%s : %s"), *name, *type)
 	// }
+	
+
+
+	// for (int32 n = (int)EWVEventCategory::Begin + 1; n != (int)EWVEventCategory::End; ++n)
+	// {
+	// 	auto str = UEnum::GetDisplayValueAsText<EWVEventCategory>((EWVEventCategory)n);
+	// 	WVLogI(TEXT("%s"), *(str.ToString()))
+	// }
+	// auto str = UEnum::GetDisplayValueAsText<EWVModelName>(EWVModelName::Player);
+	// WVLogI(TEXT("%s"), *(str.ToString()))
 
 
 

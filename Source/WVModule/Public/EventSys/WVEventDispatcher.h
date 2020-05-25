@@ -30,11 +30,12 @@ protected:
 
 	TMap<UObject*, TArray<FString>> _registedEvents;
 
+	UPROPERTY()
 	UGameInstance *_gameIns;
 	
 public:
 	static UWVEventDispatcher* GetInstance();
-	static void Cleanup();
+	void Cleanup();
 
 	void SetupGameInstance(UGameInstance *ins)
 	{

@@ -47,7 +47,7 @@ private:
 
 public:
 	static UWVConfigUtil* GetInstance();
-	static void Cleanup();
+	void Cleanup();
 	
 protected:
 	UWVConfigUtil();

@@ -6,6 +6,7 @@
 #include "Logger/WVLog.h"
 #include "ConfigUtil/WVConfigUtil.h"
 #include "EventSys/WVEventDispatcher.h"
+#include "Model/WVModelMgr.h"
 
 void UWVGameInstance::Init()
 {
@@ -14,15 +15,17 @@ void UWVGameInstance::Init()
 	FWVLog::GetInstance();
 	UWVConfigUtil::GetInstance();
 	UWVEventDispatcher::GetInstance();
+	UWVModelMgr::GetInstance();
 
 	UWVEventDispatcher::GetInstance()->SetupGameInstance(this);
 }
 
 void UWVGameInstance::Shutdown()
 {
-	UWVEventDispatcher::Cleanup();
-	UWVConfigUtil::Cleanup();
-	FWVLog::Cleanup();
+	UWVModelMgr::GetInstance()->Cleanup();
+	UWVEventDispatcher::GetInstance()->Cleanup();
+	UWVConfigUtil::GetInstance()->Cleanup();
+	FWVLog::GetInstance()->Cleanup();
 
 	UE_LOG(LogWVModule, Display, TEXT("===UWVGameInstance::Shutdown==="));
 }

@@ -8,6 +8,7 @@ class UTexture2D;
 
 /**
  * DataTable配置枚举
+ * @REMIND 这里加了，UWVConfigUtil::Init也要加
  */
 UENUM(BlueprintType)
 enum class EWVConfigName : uint8

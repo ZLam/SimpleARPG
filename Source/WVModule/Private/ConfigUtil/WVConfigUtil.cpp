@@ -7,7 +7,8 @@
 UWVConfigUtil* UWVConfigUtil::_instance = nullptr;
 
 UWVConfigUtil::UWVConfigUtil():
-_pathMap()
+_pathMap(),
+_configMap()
 {
 	UE_LOG(LogWVModule, Display, TEXT("===UWVConfigUtil::UWVConfigUtil==="))
 }

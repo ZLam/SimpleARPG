@@ -13,7 +13,8 @@ UWVEventDispatcher::UWVEventDispatcher():
 _categoryNames(),
 _eventNames(),
 _handlers(),
-_registedEvents()
+_registedEvents(),
+_gameIns(nullptr)
 {
 	UE_LOG(LogWVModule, Display, TEXT("===UWVEventDispatcher::UWVEventDispatcher==="))
 }
@@ -47,12 +48,18 @@ void UWVEventDispatcher::Cleanup()
 void UWVEventDispatcher::Init()
 {
 	//添加事件分类
-	_categoryNames.Emplace(EWVEventCategory::Inner, FString(TEXT("Inner")));
-	_categoryNames.Emplace(EWVEventCategory::Network, FString(TEXT("Network")));
+	for (int32 nCategory = (int32)EWVEventCategory::Begin + 1; nCategory != (int32)EWVEventCategory::End; ++nCategory)
+	{
+		FText txt = UEnum::GetDisplayValueAsText<EWVEventCategory>((EWVEventCategory)nCategory);
+		_categoryNames.Emplace((EWVEventCategory)nCategory, txt.ToString());
+	}
 
 	//添加事件名
-	_eventNames.Emplace(EWVEventName::TestActor, FString(TEXT("TestActor")));
-	_eventNames.Emplace(EWVEventName::TestUI, FString(TEXT("TestUI")));
+	for (int32 nEvent = (int32)EWVEventName::Begin + 1; nEvent != (int32)EWVEventName::End; ++nEvent)
+	{
+		FText txt = UEnum::GetDisplayValueAsText<EWVEventName>((EWVEventName)nEvent);
+		_eventNames.Emplace((EWVEventName)nEvent, txt.ToString());
+	}
 }
 
 void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* inCaller, const FString& inFuncName)

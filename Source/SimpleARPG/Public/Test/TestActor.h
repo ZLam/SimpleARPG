@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "WVModule/Public/Gameplay/WVActor.h"
 #include "WVModule/Public/EventSys/WVEventDelegate.h"
 #include "TestActor.generated.h"
 
 UCLASS()
-class SIMPLEARPG_API ATestActor : public AActor
+class SIMPLEARPG_API ATestActor : public AWVActor
 {
 	GENERATED_BODY()
 

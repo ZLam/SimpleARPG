@@ -32,7 +32,7 @@ class WVMODULE_API FWVLog
 {
 public:
 	static TSharedPtr<FWVLog> GetInstance();
-	static void Cleanup();
+	void Cleanup();
 
 	void Info(const FString &strLog, bool bPrintToLog, bool bPrintToScreen, float duration);
 	void Warning(const FString &strLog, bool bPrintToLog, bool bPrintToScreen, float duration);
