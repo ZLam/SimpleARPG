@@ -90,7 +90,7 @@ EWVEventHandlerRet UWVEventHandler::FireEvent(void* params)
 
 EWVEventHandlerRet UWVEventHandler::FireEvent_BP(FWVEventParams_BP& params_bp)
 {
-	WVLogI(TEXT("UWVEventHandler::FireEvent_BP_%p_%p"), params_bp.propertyInfoPtr, params_bp.propertyPtr);
+	// WVLogI(TEXT("UWVEventHandler::FireEvent_BP_%p_%p"), params_bp.propertyInfoPtr, params_bp.propertyPtr);
 	
 	EWVEventHandlerRet ret = EWVEventHandlerRet::Fail;
 
@@ -167,13 +167,15 @@ EWVEventHandlerRet UWVEventHandler::FireEvent_BP(FWVEventParams_BP& params_bp)
 						{
 							//float
 							double val = tProperty->GetFloatingPointPropertyValue(params_bp.propertyPtr);
-							listener->caller->ProcessEvent(listener->func, &val);
+							float tVal = val;
+							listener->caller->ProcessEvent(listener->func, &tVal);
 						}
 						else
 						{
 							//int , enum
 							int64 val = tProperty->GetSignedIntPropertyValue(params_bp.propertyPtr);
-							listener->caller->ProcessEvent(listener->func, &val);
+							int32 tVal = val;
+							listener->caller->ProcessEvent(listener->func, &tVal);
 						}
 						ret = EWVEventHandlerRet::Success;
 					}

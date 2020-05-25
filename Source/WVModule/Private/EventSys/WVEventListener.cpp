@@ -3,6 +3,7 @@
 
 #include "EventSys/WVEventListener.h"
 #include "WVBlueprintFunctionLibrary.h"
+#include "Logger/WVLog.h"
 
 FWVEventListener::FWVEventListener(UObject* inCaller, const FString& inFuncName):
 caller(inCaller),
@@ -68,6 +69,10 @@ bool FWVEventListener::IsTypeFuncParamsFirst(const FString& strType)
 			ret = arr[0]->GetCPPType() == strType;
 		}
 	}
+	if (!ret)
+	{
+		WVLogW(TEXT("listener func'%s' params dont match '%s'"), *(func->GetName()), *(strType))
+	}
 	return ret;
 }
 
@@ -83,6 +88,10 @@ bool FWVEventListener::IsClassFuncParamsFirst(UClass* cls)
 			ret = arr[0]->GetClass()->IsChildOf(cls);
 			// ret = arr[0]->StaticClass()->IsChildOf(cls);
 		}
+	}
+	if (!ret)
+	{
+		WVLogW(TEXT("listener func'%s' params dont match '%s'"), *(func->GetName()), *(cls->GetName()))
 	}
 	return ret;
 }
