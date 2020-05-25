@@ -4,10 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "WVEventCenter.h"
+// #include "ConfigUtil/WVConfigUtil.h"
+// #include "WVEventCenter.h"
 #include "EventSys/WVEventDelegate.h"
-#include "EventSys/WVEventDispatcher.h"
+// #include "EventSys/WVEventDispatcher.h"
 #include "WVBlueprintFunctionLibrary.generated.h"
+
+enum class EWVConfigName : uint8;
+enum class EWVEventCategory : uint8;
+enum class EWVEventName : uint8;
+class UDataTable;
 
 /**
  * 
@@ -36,6 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "1"))
 	static void LogE(const FString &strLog, bool bPrintToLog = true, bool bPrintToScreen = true, float duration = 10);
 
+	UFUNCTION(BlueprintCallable)
+	static UDataTable* GetConfig(EWVConfigName configName);
+
 	UFUNCTION(BlueprintPure)
 	static FString ConvToEventSignature(EWVEventCategory inCategory, EWVEventName inEventName);
 
@@ -59,6 +68,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "params"))
 	static void FireEvent_OneParams(const FString &inEventSignature, UProperty *params = nullptr);
+
+	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "params"))
+	static void FireEvent_OneParams_SP(EWVEventCategory inCategory, EWVEventName inEventName, UProperty *params = nullptr);
+
+	static void _FireEvent_OneParams(const FString& inEventSignature, FWVEventParams_BP &params);
+
+	static void _FireEvent_OneParams_SP(EWVEventCategory inCategory, EWVEventName inName, FWVEventParams_BP &params);
 
 	/**
 	 * 呢个要搞清BP VM的大概工作原理才能理解
@@ -97,7 +113,31 @@ public:
 
 		P_FINISH;
 		P_NATIVE_BEGIN;
-		UWVEventDispatcher::GetInstance()->FireEvent_BP(eventSignature, params_bp);
+		_FireEvent_OneParams(eventSignature, params_bp);
+		P_NATIVE_END;
+	}
+
+	DECLARE_FUNCTION(execFireEvent_OneParams_SP)
+	{
+		Stack.MostRecentProperty = nullptr;
+
+		FWVEventParams_BP params_bp;
+		EWVEventCategory tCategory;
+		EWVEventName tName;
+
+		Stack.StepCompiledIn<UEnumProperty>(&tCategory);
+		Stack.StepCompiledIn<UEnumProperty>(&tName);
+
+		Stack.Step(Stack.Object, nullptr);
+
+		UProperty *tPropertyInfoPtr = Cast<UProperty>(Stack.MostRecentProperty);
+		void *tPropertyPtr = Stack.MostRecentPropertyAddress;
+		params_bp.propertyInfoPtr = tPropertyInfoPtr;
+		params_bp.propertyPtr = tPropertyPtr;
+
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		_FireEvent_OneParams_SP(tCategory, tName, params_bp);
 		P_NATIVE_END;
 	}
 };

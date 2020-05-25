@@ -3,6 +3,8 @@
 
 #include "WVBlueprintFunctionLibrary.h"
 #include "Logger/WVLog.h"
+#include "ConfigUtil/WVConfigUtil.h"
+#include "EventSys/WVEventDispatcher.h"
 
 void UWVBlueprintFunctionLibrary::FuncParamsOfProperties(UFunction* inFunc, TArray<UProperty*> &outArr)
 {
@@ -36,6 +38,11 @@ void UWVBlueprintFunctionLibrary::LogF(const FString& strLog, bool bPrintToLog, 
 void UWVBlueprintFunctionLibrary::LogE(const FString& strLog, bool bPrintToLog, bool bPrintToScreen, float duration)
 {
 	FWVLog::GetInstance()->Error(strLog, bPrintToLog, bPrintToScreen, duration);
+}
+
+UDataTable* UWVBlueprintFunctionLibrary::GetConfig(EWVConfigName configName)
+{
+	return UWVConfigUtil::GetInstance()->GetConfig(configName);
 }
 
 FString UWVBlueprintFunctionLibrary::ConvToEventSignature(EWVEventCategory inCategory, EWVEventName inEventName)
@@ -81,4 +88,22 @@ void UWVBlueprintFunctionLibrary::FireEvent_SP(EWVEventCategory inCategory, EWVE
 void UWVBlueprintFunctionLibrary::FireEvent_OneParams(const FString& inEventSignature, UProperty* params)
 {
 	//this never gets called due to custom thunk
+}
+
+void UWVBlueprintFunctionLibrary::FireEvent_OneParams_SP(EWVEventCategory inCategory, EWVEventName inEventName,
+	UProperty* params)
+{
+	//this never gets called due to custom thunk
+}
+
+void UWVBlueprintFunctionLibrary::_FireEvent_OneParams(const FString& inEventSignature, FWVEventParams_BP& params)
+{
+	UWVEventDispatcher::GetInstance()->FireEvent_BP(inEventSignature, params);
+}
+
+void UWVBlueprintFunctionLibrary::_FireEvent_OneParams_SP(EWVEventCategory inCategory, EWVEventName inName,
+	FWVEventParams_BP& params)
+{
+	FString eventSignature = UWVEventDispatcher::GetInstance()->GetEventSignature(inCategory, inName);
+	UWVEventDispatcher::GetInstance()->FireEvent_BP(eventSignature, params);
 }

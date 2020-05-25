@@ -131,7 +131,7 @@ EWVEventHandlerRet UWVEventHandler::FireEvent_BP(FWVEventParams_BP& params_bp)
 					UWVBlueprintFunctionLibrary::FuncParamsOfProperties(listener->func, properties);
 					if (properties.Num() > 0)
 					{
-						WVLogW(TEXT("attempt send params to obj '%s' function '%s'"), *(listener->caller->GetName()), *(listener->funcName))
+						WVLogW(TEXT("obj '%s' function '%s' need some params"), *(listener->caller->GetName()), *(listener->funcName))
 					}
 					else
 					{
