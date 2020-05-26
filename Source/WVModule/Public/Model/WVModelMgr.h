@@ -48,7 +48,7 @@ void UWVModelMgr::RegistModel(EWVModelName enumName)
 	auto pModel = _models.Find(enumName);
 	if (pModel)
 	{
-		WVLogW(TEXT("%s has existed"), *GetModelName(enumName))
+		WVLogW(TEXT("model %s has existed"), *GetModelName(enumName))
 		return;
 	}
 	T *model = NewObject<T>();

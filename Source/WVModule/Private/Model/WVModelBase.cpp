@@ -4,6 +4,16 @@
 #include "Model/WVModelBase.h"
 #include "EventSys/WVEventDispatcher.h"
 
+UWVModelBase::UWVModelBase()
+{
+	UE_LOG(LogTemp, Display, TEXT("===UWVModelBase::UWVModelBase==="))
+}
+
+UWVModelBase::~UWVModelBase()
+{
+	UE_LOG(LogTemp, Display, TEXT("===UWVModelBase::~UWVModelBase==="))
+}
+
 void UWVModelBase::OnEnter()
 {
 	

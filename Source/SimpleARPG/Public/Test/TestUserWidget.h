@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
 #include "Test/TestStructs.h"
+#include "WVModule/Public/View/WVViewBase.h"
 #include "TestUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIMPLEARPG_API UTestUserWidget : public UUserWidget
+class SIMPLEARPG_API UTestUserWidget : public UWVViewBase
 {
 	GENERATED_BODY()
 
 protected:
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 
 private:
 	FString str_testEvent;
@@ -26,6 +26,9 @@ private:
 
 	UFUNCTION()
 	void TestEvent_MultiParams2(FTestMultiParamsEvent &data);
+
+	UFUNCTION()
+	void Rec_Test();
 	
 	UFUNCTION()
 	void Btn_Test1_Callback();

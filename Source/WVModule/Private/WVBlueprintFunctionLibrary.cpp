@@ -107,3 +107,39 @@ void UWVBlueprintFunctionLibrary::_FireEvent_OneParams_SP(EWVEventCategory inCat
 	FString eventSignature = UWVEventDispatcher::GetInstance()->GetEventSignature(inCategory, inName);
 	UWVEventDispatcher::GetInstance()->FireEvent_BP(eventSignature, params);
 }
+
+void UWVBlueprintFunctionLibrary::ConvEventOneParamsToInt32(const FWVEventDelegateParams_One &delegateParams, int32& out)
+{
+	if (IsValid(delegateParams.dataInfoPtr))
+	{
+		if (delegateParams.dataInfoPtr->IsA<UNumericProperty>())
+		{
+			UNumericProperty *tProp = Cast<UNumericProperty>(delegateParams.dataInfoPtr);
+			if (tProp)
+			{
+				if (tProp->IsInteger())
+				{
+					int64 val = tProp->GetSignedIntPropertyValue(delegateParams.dataPtr);
+					out = (int32)val;
+				}
+				else
+				{
+					WVLogW(TEXT("delegateParams not a int"))
+				}
+			}
+			else
+			{
+				WVLogW(TEXT("some thing wrong"))
+				WVLogW(*WVLog_Location)
+			}
+		}
+		else
+		{
+			WVLogW(TEXT("delegateParams not a number"))
+		}
+	}
+	else
+	{
+		WVLogW(TEXT("delegateParams invalid"))
+	}
+}

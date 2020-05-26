@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "WVModelBase.generated.h"
+#include "WVViewCreatorBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WVMODULE_API UWVModelBase : public UObject
+class WVMODULE_API UWVViewCreatorBase : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UWVModelBase();
-	~UWVModelBase();
+	UWVViewCreatorBase();
+	~UWVViewCreatorBase();
 	
 	virtual void OnEnter();
 	virtual void OnExit();

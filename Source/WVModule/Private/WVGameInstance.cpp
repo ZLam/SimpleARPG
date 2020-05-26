@@ -7,6 +7,7 @@
 #include "ConfigUtil/WVConfigUtil.h"
 #include "EventSys/WVEventDispatcher.h"
 #include "Model/WVModelMgr.h"
+#include "View/WVViewCreatorMgr.h"
 
 void UWVGameInstance::Init()
 {
@@ -16,12 +17,14 @@ void UWVGameInstance::Init()
 	UWVConfigUtil::GetInstance();
 	UWVEventDispatcher::GetInstance();
 	UWVModelMgr::GetInstance();
+	UWVViewCreatorMgr::GetInstance();
 
 	UWVEventDispatcher::GetInstance()->SetupGameInstance(this);
 }
 
 void UWVGameInstance::Shutdown()
 {
+	UWVViewCreatorMgr::GetInstance()->Cleanup();
 	UWVModelMgr::GetInstance()->Cleanup();
 	UWVEventDispatcher::GetInstance()->Cleanup();
 	UWVConfigUtil::GetInstance()->Cleanup();

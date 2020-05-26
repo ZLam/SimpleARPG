@@ -3,16 +3,30 @@
 
 #include "SimpleARPG/Public/Test/TestHUD.h"
 #include "Blueprint/UserWidget.h"
-#include "SimpleARPG/Public/Test/TestUserWidget.h"
+#include "Test/TestUserWidget.h"
+#include "WVModule/Public/Logger/WVLog.h"
 
 void ATestHUD::BeginPlay()
 {
 	if (IsValid(_mainViewClass))
 	{
-		_mainView = CreateWidget<UTestUserWidget>(GetWorld(), _mainViewClass);
-		if (_mainView)
+		auto cls = LoadClass<UTestUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/Test/BP_TestMainView.BP_TestMainView_C'"));
+
+		if (cls)
 		{
-			_mainView->AddToViewport();
+			WVLogI(TEXT("xixihaha"))
+
+			_mainView = CreateWidget<UTestUserWidget>(GetWorld(), cls);
+			if (_mainView)
+			{
+				_mainView->AddToViewport();
+			}
 		}
+		
+		// _mainView = CreateWidget<UTestUserWidget>(GetWorld(), _mainViewClass);
+		// if (_mainView)
+		// {
+		// 	_mainView->AddToViewport();
+		// }
 	}
 }

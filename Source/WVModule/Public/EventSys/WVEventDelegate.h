@@ -14,7 +14,7 @@ struct WVMODULE_API FWVEventDelegateParams_One
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	UProperty* dataInfoPtr;
 
 	void* dataPtr;

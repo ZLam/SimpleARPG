@@ -9,9 +9,8 @@
 #include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
 #include "WVModule/Public/WVModelCenter.h"
-#include "Test/TestStructs.h"
 
-void UTestUserWidget::NativeOnInitialized()
+void UTestUserWidget::NativeConstruct()
 {
 	Super::NativeOnInitialized();
 
@@ -41,6 +40,8 @@ void UTestUserWidget::NativeOnInitialized()
 	FScriptDelegate event_btn_testEvent2;
 	event_btn_testEvent2.BindUFunction(this, TEXT("Btn_TestEvent2_Callback"));
 	btn_testEvent2->OnClicked.Add(event_btn_testEvent2);
+
+	UWVEventDispatcher::GetInstance()->AddListener(TEXT("TestUserWidget_Test"), this, TEXT("Rec_Test"));
 }
 
 void UTestUserWidget::TestEvent_MultiParams(int32 &n32, float &fVal, bool &bVal, FString &str, UObject* obj)
@@ -53,6 +54,11 @@ void UTestUserWidget::TestEvent_MultiParams2(FTestMultiParamsEvent& data)
 {
 	WVLogI(TEXT("UTestUserWidget::TestEvent_MultiParams2"))
 	WVLogI(TEXT("%d_%f_%d_%s_%p"), data.num_int32, data.num_float, data.bVal, *(data.str), data.obj);
+}
+
+void UTestUserWidget::Rec_Test()
+{
+	WVLogI(TEXT("UTestUserWidget::Rec_Test"))
 }
 
 void UTestUserWidget::Btn_Test1_Callback()

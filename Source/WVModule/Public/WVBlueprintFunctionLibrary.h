@@ -76,6 +76,9 @@ public:
 
 	static void _FireEvent_OneParams_SP(EWVEventCategory inCategory, EWVEventName inName, FWVEventParams_BP &params);
 
+	UFUNCTION(BlueprintPure)
+	static void ConvEventOneParamsToInt32(const FWVEventDelegateParams_One &delegateParams, int32 &out);
+
 	/**
 	 * 呢个要搞清BP VM的大概工作原理才能理解
 	 * some info:
