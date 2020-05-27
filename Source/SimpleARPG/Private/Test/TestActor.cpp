@@ -7,6 +7,10 @@
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "WVModule/Public/Model/WVModelMgr.h"
+#include "WVModule/Public/View/WVViewCreatorMgr.h"
+#include "Model/Model_Player.h"
+#include "View/Item/ItemCreator.h"
 
 // Sets default values
 ATestActor::ATestActor():

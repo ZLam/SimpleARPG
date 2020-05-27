@@ -54,7 +54,9 @@ void UWVModelMgr::RegistModel(EWVModelName enumName)
 	T *model = NewObject<T>();
 	model->AddToRoot();
 	model->OnEnter();
+	
 	_models.Add(enumName, model);
+	// _models.Emplace(enumName, model);
 }
 
 template <typename T>

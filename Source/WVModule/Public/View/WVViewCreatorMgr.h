@@ -47,5 +47,7 @@ void UWVViewCreatorMgr::RegistCreator(const FString &name)
 	T *creator = NewObject<T>();
 	creator->AddToRoot();
 	creator->OnEnter();
+	
 	_creators.Add(name, creator);
+	// _creators.Emplace(name, creator);
 }

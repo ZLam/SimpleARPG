@@ -16,6 +16,8 @@ _creators()
 UWVViewCreatorMgr::~UWVViewCreatorMgr()
 {
 	UE_LOG(LogWVModule, Display, TEXT("===UWVViewCreatorMgr::~UWVViewCreatorMgr==="))
+
+	_instance = nullptr;
 }
 
 UWVViewCreatorMgr* UWVViewCreatorMgr::GetInstance()

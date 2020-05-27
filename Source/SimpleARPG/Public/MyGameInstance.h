@@ -16,4 +16,5 @@ class SIMPLEARPG_API UMyGameInstance : public UWVGameInstance
 
 public:
 	virtual void Init() override;
+	virtual void Shutdown() override;
 };

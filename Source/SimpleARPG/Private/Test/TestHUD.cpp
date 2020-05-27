@@ -14,8 +14,6 @@ void ATestHUD::BeginPlay()
 
 		if (cls)
 		{
-			WVLogI(TEXT("xixihaha"))
-
 			_mainView = CreateWidget<UTestUserWidget>(GetWorld(), cls);
 			if (_mainView)
 			{

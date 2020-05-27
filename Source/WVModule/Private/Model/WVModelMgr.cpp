@@ -15,6 +15,8 @@ _models()
 UWVModelMgr::~UWVModelMgr()
 {
 	UE_LOG(LogWVModule, Display, TEXT("===UWVModelMgr::~UWVModelMgr==="))
+
+	_instance = nullptr;		//一定要设回nullptr的
 }
 
 UWVModelMgr* UWVModelMgr::GetInstance()

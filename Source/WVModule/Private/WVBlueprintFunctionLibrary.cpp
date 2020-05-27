@@ -108,9 +108,41 @@ void UWVBlueprintFunctionLibrary::_FireEvent_OneParams_SP(EWVEventCategory inCat
 	UWVEventDispatcher::GetInstance()->FireEvent_BP(eventSignature, params);
 }
 
-void UWVBlueprintFunctionLibrary::ConvEventOneParamsToInt32(const FWVEventDelegateParams_One &delegateParams, int32& out)
+bool UWVBlueprintFunctionLibrary::ConvEventOneParamsToBool(const FWVEventDelegateParams_One& delegateParams, bool& out)
 {
-	if (IsValid(delegateParams.dataInfoPtr))
+	bool ret = false;
+	if (IsValid(delegateParams.dataInfoPtr) && delegateParams.dataPtr)
+	{
+		if (delegateParams.dataInfoPtr->IsA<UBoolProperty>())
+		{
+			UBoolProperty *tProp = Cast<UBoolProperty>(delegateParams.dataInfoPtr);
+			if (tProp)
+			{
+				bool val = tProp->GetPropertyValue(delegateParams.dataPtr);
+				out = val;
+				ret = true;
+			}
+			else
+			{
+				WVLogW(TEXT("some thing wrong"))
+			}
+		}
+		else
+		{
+			WVLogW(TEXT("delegateParams not a bool"))
+		}
+	}
+	else
+	{
+		WVLogW(TEXT("delegateParams invalid"))
+	}
+	return ret;
+}
+
+bool UWVBlueprintFunctionLibrary::ConvEventOneParamsToInt32(const FWVEventDelegateParams_One &delegateParams, int32& out)
+{
+	bool ret = false;
+	if (IsValid(delegateParams.dataInfoPtr) && delegateParams.dataPtr)
 	{
 		if (delegateParams.dataInfoPtr->IsA<UNumericProperty>())
 		{
@@ -121,6 +153,7 @@ void UWVBlueprintFunctionLibrary::ConvEventOneParamsToInt32(const FWVEventDelega
 				{
 					int64 val = tProp->GetSignedIntPropertyValue(delegateParams.dataPtr);
 					out = (int32)val;
+					ret = true;
 				}
 				else
 				{
@@ -130,7 +163,6 @@ void UWVBlueprintFunctionLibrary::ConvEventOneParamsToInt32(const FWVEventDelega
 			else
 			{
 				WVLogW(TEXT("some thing wrong"))
-				WVLogW(*WVLog_Location)
 			}
 		}
 		else
@@ -142,4 +174,153 @@ void UWVBlueprintFunctionLibrary::ConvEventOneParamsToInt32(const FWVEventDelega
 	{
 		WVLogW(TEXT("delegateParams invalid"))
 	}
+	return ret;
+}
+
+bool UWVBlueprintFunctionLibrary::ConvEventOneParamsToFloat(const FWVEventDelegateParams_One& delegateParams, float& out)
+{
+	bool ret = false;
+	if (IsValid(delegateParams.dataInfoPtr) && delegateParams.dataPtr)
+	{
+		if (delegateParams.dataInfoPtr->IsA<UNumericProperty>())
+		{
+			UNumericProperty *tProp = Cast<UNumericProperty>(delegateParams.dataInfoPtr);
+			if (tProp)
+			{
+				if (tProp->IsFloatingPoint())
+				{
+					float val = tProp->GetFloatingPointPropertyValue(delegateParams.dataPtr);
+					out = val;
+					ret = true;
+				}
+				else
+				{
+					WVLogW(TEXT("delegateParams not a float"))
+				}
+			}
+			else
+			{
+				WVLogW(TEXT("some thing wrong"))
+			}
+		}
+		else
+		{
+			WVLogW(TEXT("delegateParams not a number"))
+		}
+	}
+	else
+	{
+		WVLogW(TEXT("delegateParams invalid"))
+	}
+	return ret;
+}
+
+bool UWVBlueprintFunctionLibrary::ConvEventOneParamsToString(const FWVEventDelegateParams_One& delegateParams, FString& out)
+{
+	bool ret = false;
+	if (IsValid(delegateParams.dataInfoPtr) && delegateParams.dataPtr)
+	{
+		if (delegateParams.dataInfoPtr->IsA<UStrProperty>())
+		{
+			UStrProperty *tProp = Cast<UStrProperty>(delegateParams.dataInfoPtr);
+			if (tProp)
+			{
+				FString val = tProp->GetPropertyValue(delegateParams.dataPtr);
+				out = val;
+				ret = true;
+			}
+			else
+			{
+				WVLogW(TEXT("some thing wrong"))
+			}
+		}
+		else
+		{
+			WVLogW(TEXT("delegateParams not a string"))
+		}
+	}
+	else
+	{
+		WVLogW(TEXT("delegateParams invalid"))
+	}
+	return ret;
+}
+
+bool UWVBlueprintFunctionLibrary::ConvEventOneParamsToObj(const FWVEventDelegateParams_One& delegateParams, UObject*& out)
+{
+	bool ret = false;
+	if (IsValid(delegateParams.dataInfoPtr) && delegateParams.dataPtr)
+	{
+		if (delegateParams.dataInfoPtr->IsA<UObjectProperty>())
+		{
+			UObjectProperty *tProp = Cast<UObjectProperty>(delegateParams.dataInfoPtr);
+			if (tProp)
+			{
+				UObject *val = tProp->GetPropertyValue(delegateParams.dataPtr);
+				out = val;
+				ret = true;
+			}
+			else
+			{
+				WVLogW(TEXT("some thing wrong"))
+			}
+		}
+		else
+		{
+			WVLogW(TEXT("delegateParams not a object"))
+		}
+	}
+	else
+	{
+		WVLogW(TEXT("delegateParams invalid"))
+	}
+	return ret;
+}
+
+bool UWVBlueprintFunctionLibrary::ConvEventOneParamsToStruct(const FWVEventDelegateParams_One& delegateParams, UProperty*& out)
+{
+	//this never gets called due to custom thunk
+	return false;
+}
+
+bool UWVBlueprintFunctionLibrary::_ConvEventOneParamsToStruct(FWVEventDelegateParams_One& inParams,
+	FWVEventDelegateParams_One& outParams)
+{
+	bool ret = false;
+	if (IsValid(inParams.dataInfoPtr) && inParams.dataPtr)
+	{
+		if (!inParams.dataInfoPtr->IsA<UStructProperty>())
+		{
+			WVLogW(TEXT("delegateParams not a struct"))
+			return ret;
+		}
+		if (!outParams.dataInfoPtr->IsA<UStructProperty>())
+		{
+			WVLogW(TEXT("out param not a struct"))
+			return ret;
+		}
+		UStructProperty *inProp = Cast<UStructProperty>(inParams.dataInfoPtr);
+		UStructProperty *outProp = Cast<UStructProperty>(outParams.dataInfoPtr);
+		if (inProp && outProp)
+		{
+			if (inProp->Struct == outProp->Struct)
+			{
+				outProp->CopyCompleteValue(outParams.dataPtr, inParams.dataPtr);
+				ret = true;
+			}
+			else
+			{
+				WVLogW(TEXT("inProp->Struct != outProp->Struct"))
+			}
+		}
+		else
+		{
+			WVLogW(TEXT("some thing wrong"))
+		}
+	}
+	else
+	{
+		WVLogW(TEXT("delegateParams invalid"))
+	}
+	return ret;
 }

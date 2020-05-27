@@ -16,9 +16,14 @@ void UMyGameInstance::Init()
 	 * 注冊model
 	 */
 	UWVModelMgr::GetInstance()->RegistModel<UModel_Player>(EWVModelName::Player);
-
+	
 	/**
 	 * 注冊creator
 	 */
-	UWVViewCreatorMgr::GetInstance()->RegistCreator<UItemCreator>(TEXT("ItemCreator"));
+	UWVViewCreatorMgr::GetInstance()->RegistCreator<UItemCreator>(FString(TEXT("ItemCreator")));
+}
+
+void UMyGameInstance::Shutdown()
+{
+	Super::Shutdown();
 }

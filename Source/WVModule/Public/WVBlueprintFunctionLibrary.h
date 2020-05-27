@@ -4,10 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-// #include "ConfigUtil/WVConfigUtil.h"
-// #include "WVEventCenter.h"
 #include "EventSys/WVEventDelegate.h"
-// #include "EventSys/WVEventDispatcher.h"
 #include "WVBlueprintFunctionLibrary.generated.h"
 
 enum class EWVConfigName : uint8;
@@ -77,9 +74,30 @@ public:
 	static void _FireEvent_OneParams_SP(EWVEventCategory inCategory, EWVEventName inName, FWVEventParams_BP &params);
 
 	UFUNCTION(BlueprintPure)
-	static void ConvEventOneParamsToInt32(const FWVEventDelegateParams_One &delegateParams, int32 &out);
+	static bool ConvEventOneParamsToBool(const FWVEventDelegateParams_One &delegateParams, bool &out);
+	
+	UFUNCTION(BlueprintPure)
+	static bool ConvEventOneParamsToInt32(const FWVEventDelegateParams_One &delegateParams, int32 &out);
+
+	UFUNCTION(BlueprintPure)
+	static bool ConvEventOneParamsToFloat(const FWVEventDelegateParams_One &delegateParams, float &out);
+
+	UFUNCTION(BlueprintPure)
+	static bool ConvEventOneParamsToString(const FWVEventDelegateParams_One &delegateParams, FString &out);
+
+	UFUNCTION(BlueprintPure)
+	static bool ConvEventOneParamsToObj(const FWVEventDelegateParams_One &delegateParams, UObject * &out);
+
+	UFUNCTION(BlueprintPure, CustomThunk, meta = (CustomStructureParam = "out"))
+	static bool ConvEventOneParamsToStruct(const FWVEventDelegateParams_One &delegateParams, UProperty * &out);
+
+	static bool _ConvEventOneParamsToStruct(FWVEventDelegateParams_One &inParams, FWVEventDelegateParams_One &outParams);
 
 	/**
+	 * The CustomStructureParam metadata is what tells the Blueprint code generator to treat the pin as a wildcard.
+	 * The CustomThunk UFUNCTION flag prevents UHT from generating the code that glues the Blueprint to the C++ function and requires you to provider your own.
+	 * the UProperty only contains reflection data upon the property (its type). It does not contain the value itself!
+	 *
 	 * 呢个要搞清BP VM的大概工作原理才能理解
 	 * some info:
 	 * link -> https://forums.unrealengine.com/community/community-content-tools-and-tutorials/27351-tutorial-how-to-accept-wildcard-structs-in-your-ufunctions
@@ -142,6 +160,29 @@ public:
 		P_NATIVE_BEGIN;
 		_FireEvent_OneParams_SP(tCategory, tName, params_bp);
 		P_NATIVE_END;
+	}
+
+	DECLARE_FUNCTION(execConvEventOneParamsToStruct)
+	{
+		Stack.MostRecentProperty = nullptr;
+
+		FWVEventDelegateParams_One inParams;
+		FWVEventDelegateParams_One outParams;
+		bool r = false;
+		
+		Stack.StepCompiledIn<UStructProperty>(&inParams);
+		
+		Stack.Step(Stack.Object, nullptr);
+
+		outParams.dataInfoPtr = Stack.MostRecentProperty;
+		outParams.dataPtr = Stack.MostRecentPropertyAddress;
+
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		r = _ConvEventOneParamsToStruct(inParams, outParams);
+		P_NATIVE_END;
+
+		*(bool*)RESULT_PARAM = r;
 	}
 };
 
