@@ -11,6 +11,8 @@
 #include "WVModule/Public/View/WVViewCreatorMgr.h"
 #include "Model/Model_Player.h"
 #include "View/Item/ItemCreator.h"
+#include "Test/TestUserWidget.h"
+#include "WVModule/Public/View/WVViewMgr.h"
 
 // Sets default values
 ATestActor::ATestActor():

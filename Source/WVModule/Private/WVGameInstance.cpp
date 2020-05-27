@@ -20,6 +20,7 @@ void UWVGameInstance::Init()
 	UWVViewCreatorMgr::GetInstance();
 
 	UWVEventDispatcher::GetInstance()->SetupGameInstance(this);
+	UWVViewCreatorMgr::GetInstance()->SetupGameInstance(this);
 }
 
 void UWVGameInstance::Shutdown()

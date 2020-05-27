@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Engine/Engine.h"
 #include "Logger/WVLog.h"
 #include "WVViewCreatorMgr.generated.h"
 
@@ -23,9 +24,17 @@ protected:
 	UPROPERTY()
 	TMap<FString, UWVViewCreatorBase*> _creators;
 
+	UPROPERTY()
+	UGameInstance *_gameIns;
+
 public:
 	static UWVViewCreatorMgr* GetInstance();
 	void Cleanup();
+
+	void SetupGameInstance(UGameInstance *ins)
+	{
+		_gameIns = ins;
+	}
 
 	template<typename T>
 	void RegistCreator(const FString &name);
@@ -46,6 +55,7 @@ void UWVViewCreatorMgr::RegistCreator(const FString &name)
 	}
 	T *creator = NewObject<T>();
 	creator->AddToRoot();
+	creator->SetupGameInstance(_gameIns);
 	creator->OnEnter();
 	
 	_creators.Add(name, creator);

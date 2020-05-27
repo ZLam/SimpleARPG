@@ -6,12 +6,15 @@
 #include "UObject/NoExportTypes.h"
 #include "WVViewMgr.generated.h"
 
+class UWVViewBase;
+
 UENUM()
 enum class EWVViewZOrder : uint8
 {
-	MainView,
-	Dialog,
-	Tips,
+	MainView	= 10,//主界面
+	FuncView	= 20,//功能界面
+	Dialog		= 30,//弹窗
+	Tips		= 40,//提示框
 };
 
 /**
@@ -25,9 +28,14 @@ class WVMODULE_API UWVViewMgr : public UObject
 protected:
 	static UWVViewMgr *_instance;
 
+	UPROPERTY()
+	UWVViewBase* _mainView;
+
 public:
 	static UWVViewMgr* GetInstance();
 	void Cleanup();
+
+	void SwitchMainView(UWVViewBase* view);
 
 protected:
 	UWVViewMgr();

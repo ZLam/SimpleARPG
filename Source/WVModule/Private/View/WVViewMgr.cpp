@@ -3,6 +3,7 @@
 
 #include "View/WVViewMgr.h"
 #include "WVModule.h"
+#include "View/WVViewBase.h"
 
 UWVViewMgr *UWVViewMgr::_instance = nullptr;
 
@@ -29,4 +30,18 @@ UWVViewMgr* UWVViewMgr::GetInstance()
 void UWVViewMgr::Cleanup()
 {
 	_instance->RemoveFromRoot();
+}
+
+void UWVViewMgr::SwitchMainView(UWVViewBase* view)
+{
+	if (!IsValid(view))
+	{
+		return;
+	}
+	if (IsValid(_mainView))
+	{
+		_mainView->RemoveFromParent();
+	}
+	_mainView = view;
+	_mainView->AddToViewport((int32)EWVViewZOrder::MainView);
 }

@@ -30,6 +30,7 @@ enum class EWVEventName : uint8
 	//for test begin
 	TestActor		UMETA(DisplayName = "TestActor"),
 	TestUI			UMETA(DisplayName = "TestUI"),
+	CreateTestView	UMETA(DisplayName = "CreateTestView"),
 	//for test end
 
 	End				UMETA(DisplayName = "None"),

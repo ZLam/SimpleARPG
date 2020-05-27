@@ -5,10 +5,12 @@
 #include "Components/Button.h"
 #include "Test/TestActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "View/WVViewMgr.h"
 #include "WVModule/Public/Logger/WVLog.h"
 #include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
 #include "WVModule/Public/WVModelCenter.h"
+#include "WVModule/Public/View/WVViewMgr.h"
 
 void UTestUserWidget::NativeConstruct()
 {
@@ -336,12 +338,16 @@ void UTestUserWidget::Btn_Test3_Callback()
 
 void UTestUserWidget::Btn_TestEvent1_Callback()
 {
-	auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent"));
-	UWVEventDispatcher::GetInstance()->FireEvent(sign);
+	WVLogI(TEXT("UTestUserWidget::Btn_TestEvent1_Callback"));
+	
+	// auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent"));
+	// UWVEventDispatcher::GetInstance()->FireEvent(sign);
 }
 
 void UTestUserWidget::Btn_TestEvent2_Callback()
 {
+	WVLogI(TEXT("UTestUserWidget::Btn_TestEvent2_Callback"));
+	
 	auto sign = WVEventSignature(TEXT("Haha"), TEXT("TestEvent_Str"));
 	UWVEventDispatcher::GetInstance()->FireEvent(sign, str_testEvent);
 

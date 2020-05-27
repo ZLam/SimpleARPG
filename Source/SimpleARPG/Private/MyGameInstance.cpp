@@ -7,6 +7,10 @@
 #include "Model/Model_Player.h"
 #include "View/Item/ItemCreator.h"
 
+//@TEST begin
+#include "Test/TestCreator.h"
+//@TEST end
+
 void UMyGameInstance::Init()
 {
 	Super::Init();
@@ -21,9 +25,7 @@ void UMyGameInstance::Init()
 	 * 注冊creator
 	 */
 	UWVViewCreatorMgr::GetInstance()->RegistCreator<UItemCreator>(FString(TEXT("ItemCreator")));
-}
-
-void UMyGameInstance::Shutdown()
-{
-	Super::Shutdown();
+	//@TEST begin
+	UWVViewCreatorMgr::GetInstance()->RegistCreator<UTestCreator>(FString(TEXT("TestCreator")));
+	//@TEST end
 }

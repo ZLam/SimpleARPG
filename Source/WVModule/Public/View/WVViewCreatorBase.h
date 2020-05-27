@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Engine/Engine.h"
 #include "WVViewCreatorBase.generated.h"
 
 /**
@@ -14,9 +15,18 @@ class WVMODULE_API UWVViewCreatorBase : public UObject
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY()
+		UGameInstance *_gameIns;
+
 public:
 	UWVViewCreatorBase();
 	~UWVViewCreatorBase();
+
+	void SetupGameInstance(UGameInstance *ins)
+	{
+		_gameIns = ins;
+	}
 	
 	virtual void OnEnter();
 	virtual void OnExit();
