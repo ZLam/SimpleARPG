@@ -8,6 +8,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class ULockTargetComp;
 
 /**
  * 
@@ -17,11 +18,30 @@ class SIMPLEARPG_API APlayerCharacter : public AActionCharacter
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY()
+	TArray<AActor*> Targets;
+
+	int32 Index_Target = -1;
+	
+	UFUNCTION(BlueprintCallable)
+	void TestLockTarget();
+
+	UFUNCTION()
+	void TestLockTarget_Callback_Distance(float dist);
+
 protected:
+	UPROPERTY(VisibleAnywhere)
+	bool _bReadyAtk;
+
 	UPROPERTY(EditAnywhere)
-	USpringArmComponent *_comp_springArm;
+	USpringArmComponent *_Comp_SpringArm;
+
 	UPROPERTY(EditAnywhere)
-	UCameraComponent *_comp_cam;
+	UCameraComponent *_Comp_Cam;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	ULockTargetComp *_Comp_LockTarget;
 
 public:
 	// Sets default values for this character's properties
