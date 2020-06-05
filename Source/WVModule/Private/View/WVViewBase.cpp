@@ -4,9 +4,9 @@
 #include "View/WVViewBase.h"
 #include "EventSys/WVEventDispatcher.h"
 
-void UWVViewBase::NativeConstruct()
+void UWVViewBase::NativeOnInitialized()
 {
-	Super::NativeConstruct();
+	Super::NativeOnInitialized();
 }
 
 void UWVViewBase::NativeDestruct()

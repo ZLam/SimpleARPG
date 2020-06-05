@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetComponent.h"
+#include "DrawDebugHelpers.h"
 #include "WVModule/Public/Logger/WVLog.h"
 
 // Sets default values for this component's properties
@@ -21,6 +22,8 @@ ULockTargetComp::ULockTargetComp()
 	Class_TargetPoint = nullptr;
 	TargetPointRelativePos = FVector(0.0f);
 	TargetPointDrawSize = FVector2D(32.0f, 32.0f);
+	OffsetFromPos = FVector(0.0f);
+	PitchLimit = FVector2D(-60, 60);
 }
 
 
@@ -68,6 +71,15 @@ bool ULockTargetComp::IsLocking()
 	return _CurTarget != nullptr;
 }
 
+UUserWidget* ULockTargetComp::GetTargetPointWidget()
+{
+	if (_Comp_TargetPoint)
+	{
+		return _Comp_TargetPoint->GetUserWidgetObject();
+	}
+	return nullptr;
+}
+
 void ULockTargetComp::_UpdateLocking(float dt)
 {
 	if (!IsLocking())
@@ -91,8 +103,25 @@ void ULockTargetComp::_UpdateLocking(float dt)
 
 	FVector fromPos = player->GetActorLocation();
 	FVector toPos = _CurTarget->GetActorLocation();
-	FRotator toRotation = FRotationMatrix::MakeFromX(toPos - fromPos).Rotator();
+
+	fromPos += OffsetFromPos;
+
+	//
+	// DrawDebugLine(GetWorld(), fromPos, toPos, FColor::Cyan);
+	//
+
 	FRotator fromRotation = playerCtrl->GetControlRotation();
+	FRotator toRotation = FRotationMatrix::MakeFromX(toPos - fromPos).Rotator();
+
+	toRotation.Roll = fromRotation.Roll;
+	if (toRotation.Pitch < PitchLimit.X)
+	{
+		toRotation.Pitch = PitchLimit.X;
+	}
+	else if (toRotation.Pitch > PitchLimit.Y)
+	{
+		toRotation.Pitch = PitchLimit.Y;
+	}
 
 	FRotator interpRotation = FMath::RInterpTo(fromRotation, toRotation, dt, 5.0f);
 
@@ -112,14 +141,19 @@ void ULockTargetComp::_AddTargetPoint()
 		return;
 	}
 
-	UWidgetComponent *comp = NewObject<UWidgetComponent>(_CurTarget);
-	comp->ComponentTags.Push(TEXT("LockTargetSys_TargetPoint"));
-	comp->SetWidgetClass(Class_TargetPoint);
-	comp->SetWidgetSpace(EWidgetSpace::Screen);
-	comp->SetRelativeLocation(TargetPointRelativePos);
-	comp->SetDrawSize(TargetPointDrawSize);
-	comp->SetupAttachment(_CurTarget->GetRootComponent());
-	comp->RegisterComponent();
+	if (_Comp_TargetPoint)
+	{
+		_DelTargetPoint();
+	}
+
+	_Comp_TargetPoint = NewObject<UWidgetComponent>(_CurTarget);
+	_Comp_TargetPoint->ComponentTags.Push(TEXT("LockTargetSys_TargetPoint"));
+	_Comp_TargetPoint->SetWidgetClass(Class_TargetPoint);
+	_Comp_TargetPoint->SetWidgetSpace(EWidgetSpace::Screen);
+	_Comp_TargetPoint->SetRelativeLocation(TargetPointRelativePos);
+	_Comp_TargetPoint->SetDrawSize(TargetPointDrawSize);
+	_Comp_TargetPoint->SetupAttachment(_CurTarget->GetRootComponent());
+	_Comp_TargetPoint->RegisterComponent();
 }
 
 void ULockTargetComp::_DelTargetPoint()
@@ -129,15 +163,23 @@ void ULockTargetComp::_DelTargetPoint()
 		return;
 	}
 
-	TArray<USceneComponent*> comps;
-	_CurTarget->GetRootComponent()->GetChildrenComponents(true, comps);
+	//
+	// TArray<USceneComponent*> comps;
+	// _CurTarget->GetRootComponent()->GetChildrenComponents(true, comps);
+	//
+	// for (auto tComp : comps)
+	// {
+	// 	UWidgetComponent *comp_widget = Cast<UWidgetComponent>(tComp);
+	// 	if (comp_widget && comp_widget->ComponentHasTag(TEXT("LockTargetSys_TargetPoint")))
+	// 	{
+	// 		tComp->DestroyComponent();
+	// 	}
+	// }
+	//
 
-	for (auto tComp : comps)
+	if (_Comp_TargetPoint)
 	{
-		UWidgetComponent *comp_widget = Cast<UWidgetComponent>(tComp);
-		if (comp_widget && comp_widget->ComponentHasTag(TEXT("LockTargetSys_TargetPoint")))
-		{
-			tComp->DestroyComponent();
-		}
+		_Comp_TargetPoint->DestroyComponent();
+		_Comp_TargetPoint = nullptr;
 	}
 }

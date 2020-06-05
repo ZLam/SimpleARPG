@@ -18,21 +18,33 @@ class SIMPLEARPG_API APlayerCharacter : public AActionCharacter
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY()
-	TArray<AActor*> Targets;
-
-	int32 Index_Target = -1;
-	
+public:	
 	UFUNCTION(BlueprintCallable)
-	void TestLockTarget();
+	void ScanTargets(const TArray<FName> &tagNames);
 
-	UFUNCTION()
-	void TestLockTarget_Callback_Distance(float dist);
+	UFUNCTION(BlueprintCallable)
+	void CleanupTargets();
+
+	UFUNCTION(BlueprintCallable)
+	void LockTarget();
+
+	UFUNCTION(BlueprintCallable)
+	void UnlockTarget();
 
 protected:
+	//---property---
+	
 	UPROPERTY(VisibleAnywhere)
 	bool _bReadyAtk;
+
+	UPROPERTY(VisibleAnywhere)
+	float _AtkRange;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<AActor*> _Targets;
+
+	UPROPERTY(VisibleAnywhere)
+	int32 _Index_Target;
 
 	UPROPERTY(EditAnywhere)
 	USpringArmComponent *_Comp_SpringArm;
@@ -42,6 +54,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ULockTargetComp *_Comp_LockTarget;
+
+	//---func---
+	
+	UFUNCTION()
+	void LockTarget_Callback_Distance(float dist);
 
 public:
 	// Sets default values for this character's properties

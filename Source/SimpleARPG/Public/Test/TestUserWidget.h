@@ -16,7 +16,7 @@ class SIMPLEARPG_API UTestUserWidget : public UWVViewBase
 	GENERATED_BODY()
 
 protected:
-	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 private:
 	FString str_testEvent;

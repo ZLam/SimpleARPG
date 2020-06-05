@@ -7,10 +7,14 @@
 #include "LockTargetSys/LockTargetComp.h"
 #include "Kismet/GameplayStatics.h"
 #include "WVModule/Public/Logger/WVLog.h"
+#include "LockTargetSys/TargetPointWidget.h"
 
 APlayerCharacter::APlayerCharacter()
 {
 	_bReadyAtk = true;
+	_AtkRange = 1000.0f;
+
+	_Index_Target = -1;
 	
 	_Comp_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("comp_springArm"));
 	_Comp_SpringArm->SetupAttachment(GetRootComponent());
@@ -19,32 +23,65 @@ APlayerCharacter::APlayerCharacter()
 	_Comp_Cam->SetupAttachment(_Comp_SpringArm, USpringArmComponent::SocketName);
 
 	_Comp_LockTarget = CreateDefaultSubobject<ULockTargetComp>(TEXT("comp_lockTarget"));
+	_Comp_LockTarget->Callback_Distance.BindUFunction(this, TEXT("LockTarget_Callback_Distance"));
 }
 
-void APlayerCharacter::TestLockTarget()
+void APlayerCharacter::ScanTargets(const TArray<FName> &tagNames)
 {
-	if (Targets.Num() <= 0)
+	CleanupTargets();
+	
+	for (const FName &tagName : tagNames)
 	{
-		UGameplayStatics::GetAllActorsWithTag(this, FName(TEXT("enemy")), Targets);
-		_Comp_LockTarget->Callback_Distance.BindUFunction(this, TEXT("TestLockTarget_Callback_Distance"));
+		UGameplayStatics::GetAllActorsWithTag(this, tagName, _Targets);
 	}
+}
 
-	if (Targets.Num() > 0)
+void APlayerCharacter::CleanupTargets()
+{
+	UnlockTarget();
+	_Targets.Empty();
+}
+
+void APlayerCharacter::LockTarget()
+{
+	if (_Targets.Num() > 0)
 	{
-		if (Index_Target < 0)
+		if (_Index_Target < 0)
 		{
-			Index_Target = 0;
+			_Index_Target = 0;
 		}
 		else
 		{
-			Index_Target++;
-			Index_Target = Index_Target % Targets.Num();
+			_Index_Target++;
+			_Index_Target = _Index_Target % _Targets.Num();
 		}
-		_Comp_LockTarget->LockTarget(Targets[Index_Target]);
+
+		auto target = _Targets[_Index_Target];
+		_Comp_LockTarget->LockTarget(target);
 	}
 }
 
-void APlayerCharacter::TestLockTarget_Callback_Distance(float dist)
+void APlayerCharacter::UnlockTarget()
 {
-	// WVLogI(TEXT("%f"), dist);
+	_Comp_LockTarget->UnlockTarget();
+	_Index_Target = -1;
+}
+
+void APlayerCharacter::LockTarget_Callback_Distance(float dist)
+{
+	WVLogI(TEXT("%f"), dist);
+
+	auto targetPoint = Cast<UTargetPointWidget>(_Comp_LockTarget->GetTargetPointWidget());
+
+	if (targetPoint)
+	{
+		if (dist <= _AtkRange)
+		{
+			targetPoint->Show(ETargetPointType::Red);
+		}
+		else
+		{
+			targetPoint->Show(ETargetPointType::Green);
+		}
+	}
 }

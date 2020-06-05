@@ -12,7 +12,7 @@
 #include "WVModule/Public/WVModelCenter.h"
 #include "WVModule/Public/View/WVViewMgr.h"
 
-void UTestUserWidget::NativeConstruct()
+void UTestUserWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 

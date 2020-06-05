@@ -7,6 +7,7 @@
 #include "LockTargetComp.generated.h"
 
 class UUserWidget;
+class UWidgetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEARPG_API ULockTargetComp : public UActorComponent
@@ -26,6 +27,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	FVector2D TargetPointDrawSize;
+
+	UPROPERTY(EditAnywhere)
+	FVector OffsetFromPos;
+
+	UPROPERTY(EditAnywhere)
+	FVector2D PitchLimit;
 	
 	UFUNCTION(BlueprintCallable)
 	void LockTarget(AActor *target);
@@ -36,9 +43,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsLocking();
 
+	UFUNCTION(BlueprintCallable)
+	UUserWidget* GetTargetPointWidget();
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	AActor *_CurTarget;
+
+	UPROPERTY()
+	UWidgetComponent *_Comp_TargetPoint;
 
 	void _UpdateLocking(float dt);
 
