@@ -15,6 +15,8 @@ UWVViewMgr::UWVViewMgr()
 UWVViewMgr::~UWVViewMgr()
 {
 	UE_LOG(LogWVModule, Display, TEXT("===UWVViewMgr::~UWVViewMgr==="))
+
+	_instance = nullptr;
 }
 
 UWVViewMgr* UWVViewMgr::GetInstance()

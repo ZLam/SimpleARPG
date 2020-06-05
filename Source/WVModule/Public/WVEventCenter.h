@@ -25,13 +25,18 @@ enum class EWVEventCategory : uint8
 UENUM(BlueprintType)
 enum class EWVEventName : uint8
 {
-	Begin			UMETA(DisplayName = "None"),
+	Begin							UMETA(DisplayName = "None"),
+
+	//for create view begin
+	CreateLoginView					UMETA(DisplayName = "CreateLoginView"),
+	CreateMainView					UMETA(DisplayName = "CreateMainView"),
+	//for create view end
 	
 	//for test begin
-	TestActor		UMETA(DisplayName = "TestActor"),
-	TestUI			UMETA(DisplayName = "TestUI"),
-	CreateTestView	UMETA(DisplayName = "CreateTestView"),
+	TestActor						UMETA(DisplayName = "TestActor"),
+	TestUI							UMETA(DisplayName = "TestUI"),
+	CreateTestView					UMETA(DisplayName = "CreateTestView"),
 	//for test end
 
-	End				UMETA(DisplayName = "None"),
+	End								UMETA(DisplayName = "None"),
 };

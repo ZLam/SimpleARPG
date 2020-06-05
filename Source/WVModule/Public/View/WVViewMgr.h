@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "WVGameInstance.h"
+#include "Logger/WVLog.h"
 #include "WVViewMgr.generated.h"
 
 class UWVViewBase;
@@ -29,15 +31,51 @@ protected:
 	static UWVViewMgr *_instance;
 
 	UPROPERTY()
+	UWVGameInstance *_gameIns;
+
+	UPROPERTY()
 	UWVViewBase* _mainView;
 
 public:
 	static UWVViewMgr* GetInstance();
 	void Cleanup();
 
+	void SetupGameInstance(UWVGameInstance *ins)
+	{
+		_gameIns = ins;
+	}
+
 	void SwitchMainView(UWVViewBase* view);
+
+	template<typename T>
+	void SwitchMainView(const TCHAR *widgetBP_Path);
 
 protected:
 	UWVViewMgr();
 	~UWVViewMgr();
 };
+
+template <typename T>
+void UWVViewMgr::SwitchMainView(const TCHAR *widgetBP_Path)
+{
+	auto cls = LoadClass<T>(nullptr, widgetBP_Path);
+	
+	if (!cls)
+	{
+		WVLogW(TEXT("load class'%s' fail"), widgetBP_Path)
+	}
+
+	auto w = _gameIns->GetWorld();
+	if (w)
+	{
+		auto view = CreateWidget<T>(w, cls);
+		if (view)
+		{
+			SwitchMainView(view);
+		}
+		else
+		{
+			WVLogW(TEXT("create view'%s' fail"), widgetBP_Path)
+		}
+	}
+}

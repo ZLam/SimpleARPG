@@ -9,6 +9,7 @@
 #include "EventSys/WVEventDelegate.h"
 #include "WVEventDispatcher.generated.h"
 
+class UWVGameInstance;
 class UWVEventHandler;
 
 /**
@@ -31,13 +32,13 @@ protected:
 	TMap<UObject*, TArray<FString>> _registedEvents;
 
 	UPROPERTY()
-	UGameInstance *_gameIns;
+	UWVGameInstance *_gameIns;
 	
 public:
 	static UWVEventDispatcher* GetInstance();
 	void Cleanup();
 
-	void SetupGameInstance(UGameInstance *ins)
+	void SetupGameInstance(UWVGameInstance *ins)
 	{
 		_gameIns = ins;
 	}

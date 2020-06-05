@@ -5,6 +5,8 @@
 #include "WVModule/Public/Model/WVModelMgr.h"
 #include "WVModule/Public/View/WVViewCreatorMgr.h"
 #include "Model/Model_Player.h"
+#include "View/Login/LoginCreator.h"
+#include "View/Main/MainCreator.h"
 #include "View/Item/ItemCreator.h"
 
 //@TEST begin
@@ -24,6 +26,8 @@ void UMyGameInstance::Init()
 	/**
 	 * 注冊creator
 	 */
+	UWVViewCreatorMgr::GetInstance()->RegistCreator<ULoginCreator>(FString(TEXT("LoginCreator")));
+	UWVViewCreatorMgr::GetInstance()->RegistCreator<UMainCreator>(FString(TEXT("MainCreator")));
 	UWVViewCreatorMgr::GetInstance()->RegistCreator<UItemCreator>(FString(TEXT("ItemCreator")));
 	//@TEST begin
 	UWVViewCreatorMgr::GetInstance()->RegistCreator<UTestCreator>(FString(TEXT("TestCreator")));

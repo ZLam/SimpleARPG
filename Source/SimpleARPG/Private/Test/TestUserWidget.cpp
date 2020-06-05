@@ -73,6 +73,10 @@ void UTestUserWidget::Btn_Test1_Callback()
 	 *	类型系统里还有UProperty，UEnum，UStruct，UFunction等等等
 	 *	有了类型系统才能实现反射系统
 	 *
+	 *	听群友说，StaticClass()静态，GetClass()多态。暂时理解成，如果有继承关系A->B->C
+	 *	A *c = new C; 那么c->GetClass() 应该是 C的类型信息 而不会是 A的类型信息
+	 *	X::StaticClass(); X是什么就是什么的类型信息
+	 *
 		//TestActor的c++版本拖进level
 		//StaticClass() == GetClass()
 		//StaticClass()->GetDefaultObject() == GetClass()->GetDefaultObject()

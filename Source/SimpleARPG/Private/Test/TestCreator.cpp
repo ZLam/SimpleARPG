@@ -4,6 +4,7 @@
 #include "Test/TestCreator.h"
 #include "Test/TestUserWidget.h"
 #include "WVModule/Public/Logger/WVLog.h"
+#include "WVModule/Public/WVGameInstance.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
 #include "WVModule/Public/View/WVViewMgr.h"
 

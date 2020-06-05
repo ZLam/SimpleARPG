@@ -7,6 +7,8 @@
 #include "Engine/Engine.h"
 #include "WVViewCreatorBase.generated.h"
 
+class UWVGameInstance;
+
 /**
  * 
  */
@@ -17,13 +19,13 @@ class WVMODULE_API UWVViewCreatorBase : public UObject
 
 protected:
 	UPROPERTY()
-		UGameInstance *_gameIns;
+	UWVGameInstance *_gameIns;
 
 public:
 	UWVViewCreatorBase();
 	~UWVViewCreatorBase();
 
-	void SetupGameInstance(UGameInstance *ins)
+	void SetupGameInstance(UWVGameInstance *ins)
 	{
 		_gameIns = ins;
 	}

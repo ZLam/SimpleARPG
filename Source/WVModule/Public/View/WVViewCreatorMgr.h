@@ -8,6 +8,7 @@
 #include "Logger/WVLog.h"
 #include "WVViewCreatorMgr.generated.h"
 
+class UWVGameInstance;
 class UWVViewCreatorBase;
 
 /**
@@ -25,13 +26,13 @@ protected:
 	TMap<FString, UWVViewCreatorBase*> _creators;
 
 	UPROPERTY()
-	UGameInstance *_gameIns;
+	UWVGameInstance *_gameIns;
 
 public:
 	static UWVViewCreatorMgr* GetInstance();
 	void Cleanup();
 
-	void SetupGameInstance(UGameInstance *ins)
+	void SetupGameInstance(UWVGameInstance *ins)
 	{
 		_gameIns = ins;
 	}
