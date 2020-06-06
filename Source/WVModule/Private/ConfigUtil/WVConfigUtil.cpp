@@ -44,6 +44,7 @@ void UWVConfigUtil::Init()
 	/**
 	 * 添加DataTable配置路径
 	 */
+	_pathMap.Emplace(EWVConfigName::Locomotion, TEXT("DataTable'/Game/ConfigData/DataTable_Locomotion.DataTable_Locomotion'"));
 	_pathMap.Emplace(EWVConfigName::Item, TEXT("DataTable'/Game/ConfigData/DataTable_Item.DataTable_Item'"));
 	// _pathMap.Emplace(EWVConfigName::Shop, TEXT(""));
 }

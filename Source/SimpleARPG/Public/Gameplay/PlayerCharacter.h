@@ -33,12 +33,6 @@ public:
 
 protected:
 	//---property---
-	
-	UPROPERTY(VisibleAnywhere)
-	bool _bReadyAtk;
-
-	UPROPERTY(VisibleAnywhere)
-	float _AtkRange;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<AActor*> _Targets;

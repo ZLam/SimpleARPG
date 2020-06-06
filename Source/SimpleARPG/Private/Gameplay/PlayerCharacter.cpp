@@ -11,9 +11,6 @@
 
 APlayerCharacter::APlayerCharacter()
 {
-	_bReadyAtk = true;
-	_AtkRange = 1000.0f;
-
 	_Index_Target = -1;
 	
 	_Comp_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("comp_springArm"));
@@ -69,7 +66,7 @@ void APlayerCharacter::UnlockTarget()
 
 void APlayerCharacter::LockTarget_Callback_Distance(float dist)
 {
-	WVLogI(TEXT("%f"), dist);
+	// WVLogI(TEXT("%f"), dist);
 
 	auto targetPoint = Cast<UTargetPointWidget>(_Comp_LockTarget->GetTargetPointWidget());
 
