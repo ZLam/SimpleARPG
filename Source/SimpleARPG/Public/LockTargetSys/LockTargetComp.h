@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UUserWidget* GetTargetPointWidget();
 
+	UFUNCTION(BlueprintCallable)
+	bool IsCurTargetable();
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	AActor *_CurTarget;

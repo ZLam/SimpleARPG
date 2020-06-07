@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetComponent.h"
+#include "LockTargetSys/LockTargetableInterface.h"
 #include "DrawDebugHelpers.h"
 #include "WVModule/Public/Logger/WVLog.h"
 
@@ -80,10 +81,25 @@ UUserWidget* ULockTargetComp::GetTargetPointWidget()
 	return nullptr;
 }
 
+bool ULockTargetComp::IsCurTargetable()
+{
+	if (IsValid(_CurTarget) && _CurTarget->GetClass()->ImplementsInterface(ULockTargetableInterface::StaticClass()))
+	{
+		return ILockTargetableInterface::Execute_IsTargetable(_CurTarget);
+	}
+	return false;
+}
+
 void ULockTargetComp::_UpdateLocking(float dt)
 {
 	if (!IsLocking())
 	{
+		return;
+	}
+
+	if (!IsCurTargetable())
+	{
+		UnlockTarget();
 		return;
 	}
 
