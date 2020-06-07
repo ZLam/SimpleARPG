@@ -27,6 +27,10 @@ enum class EWVEventName : uint8
 {
 	Begin							UMETA(DisplayName = "None"),
 
+	//
+	PlayerPowerChange				UMETA(DisplayName = "PlayerPowerChange"),
+	//
+
 	//for create view begin
 	CreateLoginView					UMETA(DisplayName = "CreateLoginView"),
 	CreateMainView					UMETA(DisplayName = "CreateMainView"),

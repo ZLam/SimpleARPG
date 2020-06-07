@@ -210,6 +210,36 @@ void UWVEventDispatcher::FireEvent(const FString& inEventSignature, void* obj)
 	}
 }
 
+void UWVEventDispatcher::FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName)
+{
+	FireEvent(GetEventSignature(inCategory, inEventName));
+}
+
+void UWVEventDispatcher::FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, bool bVal)
+{
+	FireEvent(GetEventSignature(inCategory, inEventName), bVal);
+}
+
+void UWVEventDispatcher::FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, int32 num)
+{
+	FireEvent(GetEventSignature(inCategory, inEventName), num);
+}
+
+void UWVEventDispatcher::FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, float num)
+{
+	FireEvent(GetEventSignature(inCategory, inEventName), num);
+}
+
+void UWVEventDispatcher::FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, FString str)
+{
+	FireEvent(GetEventSignature(inCategory, inEventName), str);
+}
+
+void UWVEventDispatcher::FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, void* obj)
+{
+	FireEvent(GetEventSignature(inCategory, inEventName), obj);
+}
+
 void UWVEventDispatcher::FireEvent_BP(const FString &inEventSignature, FWVEventParams_BP &params_bp)
 {
 	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);

@@ -13,9 +13,10 @@ class UTexture2D;
 UENUM(BlueprintType)
 enum class EWVConfigName : uint8
 {
-	Locomotion	UMETA(DisplayName = "Locomotion"),
-	Item		UMETA(DisplayName = "Item"),	//道具
-	Shop		UMETA(DisplayName = "Shop"),	//商店
+	Locomotion	UMETA(DisplayName = "Locomotion"),		//角色的基本运动
+	Attribute	UMETA(DisplayName = "Attribute"),		//角色的属性
+	Item		UMETA(DisplayName = "Item"),			//道具
+	Shop		UMETA(DisplayName = "Shop"),			//商店
 	MAX,
 };
 
@@ -67,6 +68,21 @@ public:
 	float SprintSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float SprintCostPerSecond;
+};
+
+/**
+ * Attribute配置表头
+ */
+USTRUCT(BlueprintType)
+struct FWVConfig_AttributeRow : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	FWVConfig_AttributeRow():
+	Power(100)
+	{}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Power;
 };
 
 /**

@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "ActionCharacter.generated.h"
 
+class UAnimMontage;
+
 UCLASS()
 class SIMPLEARPG_API AActionCharacter : public ACharacter
 {
@@ -17,6 +19,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool bShowDebug_Velocity;
+
+	UPROPERTY(EditAnywhere)
+	bool bShowDebug_LastMovementInputVector;
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsReadyAtk() { return _bReadyAtk; }
@@ -35,6 +40,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetSprint(bool bVal);
+
+	UFUNCTION(BlueprintCallable)
+	void Dodge();
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetCurPower() { return _CurPower; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetMaxPower() { return _MaxPower; }
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -58,9 +72,20 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool _bSprinting;
 
+	UPROPERTY(VisibleAnywhere)
+	float _MaxPower;
+
+	UPROPERTY(VisibleAnywhere)
+	float _CurPower;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Dodge;
+
 	void ShowDebug_Direction();
 
 	void ShowDebug_Velocity();
+
+	void ShowDebug_LastMovementInputVector();
 
 public:
 	// Sets default values for this character's properties

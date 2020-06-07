@@ -80,6 +80,18 @@ public:
 
 	void FireEvent(const FString &inEventSignature, void *obj);
 
+	void FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName);
+
+	void FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, bool bVal);
+
+	void FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, int32 num);
+
+	void FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, float num);
+
+	void FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, FString str);
+
+	void FireEvent_SP(EWVEventCategory inCategory, EWVEventName inEventName, void *obj);
+
 	void FireEvent_BP(const FString &inEventSignature, FWVEventParams_BP &params_bp);
 
 protected:
