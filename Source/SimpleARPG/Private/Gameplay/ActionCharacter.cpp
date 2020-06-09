@@ -185,6 +185,11 @@ void AActionCharacter::SetSprint(bool bVal)
 	{
 		return;
 	}
+
+	if (GetVelocity().Size() <= 0)
+	{
+		return;
+	}
 	
 	auto comp_move = GetCharacterMovement();
 
@@ -295,13 +300,11 @@ void AActionCharacter::HandleAnimNotify_DodgeEnd()
 
 void AActionCharacter::HandleAnimNotify_DodgeChangeColliderBegin()
 {
-	WVLogI(TEXT("333"))
 	bBegin = true;
 }
 
 void AActionCharacter::HandleAnimNotify_DodgeChangeColliderEnd()
 {
-	WVLogI(TEXT("444"))
 	bEnd = true;
 }
 
