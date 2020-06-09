@@ -35,9 +35,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetSprintCostPerSecond() { return _SprintCostPerSecond; }
 
-	// UFUNCTION(BlueprintPure)
-	// FORCEINLINE bool IsRunning() { return FMath::Abs(GetVelocity().Size() - _RunSpeed) < 5; }
-
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsSprinting() { return _bSprinting; }
 
@@ -62,14 +59,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleAnimNotify_DodgeEnd();
 
+	/**
+	 * 滚动的时候处理变小capsule，滚动完后恢复capsule正常size。
+	 * 既然要变小capsule，那么mesh也要偏移位置的。所以主要要修改2个值
+	 * 一开始用直接设置值来做，发现表现上会闪了一下，效果很不好
+	 * 然后换了插值的方式做，基本看不到闪了，效果还行
+	 * 以后看看会不会有其他的方式做的
+	 */
 	UFUNCTION(BlueprintCallable)
 	void HandleAnimNotify_DodgeChangeColliderBegin();
 
 	UFUNCTION(BlueprintCallable)
 	void HandleAnimNotify_DodgeChangeColliderEnd();
-
-	bool bBegin;
-	bool bEnd;
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -102,7 +103,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float _DodgeCost;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(VisibleAnywhere)
 	float _RecoverPowerTime;
 
 	UPROPERTY(VisibleAnywhere)
@@ -116,6 +117,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Dodge;
+
+	bool _bDodgeChangeColliderBegin;
+
+	bool _bDodgeChangeColliderEnd;
 
 	FTimerHandle _Timer_RecoverPower;
 

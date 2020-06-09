@@ -23,6 +23,8 @@ AActionCharacter::AActionCharacter()
 	
 	_bSprinting = false;
 	_bDodging = false;
+	_bDodgeChangeColliderBegin = false;
+	_bDodgeChangeColliderEnd = false;
 	
 	bShowDebug_Direction = false;
 	bShowDebug_Velocity = false;
@@ -105,71 +107,57 @@ void AActionCharacter::Tick(float DeltaTime)
 		UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::PlayerPowerChange);
 	}
 
+	if (_bDodgeChangeColliderBegin)
+	{
+		auto comp_capsule = GetCapsuleComponent();
+		if (comp_capsule)
+		{
+			float defaultHalfHeight = GetDefaultHalfHeight();
+			float curHalfHeight = comp_capsule->GetUnscaledCapsuleHalfHeight();
+			FVector curMeshPos = GetMesh()->GetRelativeLocation();
+			FVector toMeshPos = _OriginMeshRelativePos + FVector(0.0f, 0.0f, FMath::Abs(defaultHalfHeight - _DodgeCapsuleHalfHeight));
+			auto tHalfHeight = FMath::FInterpConstantTo(curHalfHeight, _DodgeCapsuleHalfHeight, DeltaTime, 250);
+			auto tMeshPos = FMath::VInterpConstantTo(curMeshPos, toMeshPos, DeltaTime, 250);
+
+			// WVLogI(TEXT("begin : %f_%f_%f"), curHalfHeight, _DodgeCapsuleHalfHeight, tHalfHeight)
+
+			comp_capsule->SetCapsuleHalfHeight(tHalfHeight, true);
+			GetMesh()->SetRelativeLocation(tMeshPos);
+
+			if (tHalfHeight <= _DodgeCapsuleHalfHeight)
+			{
+				// WVLogI(TEXT("begin done"))
+				_bDodgeChangeColliderBegin = false;
+			}
+		}
+	}
+	else if (_bDodgeChangeColliderEnd)
+	{
+		auto comp_capsule = GetCapsuleComponent();
+		if (comp_capsule)
+		{
+			float defaultHalfHeight = GetDefaultHalfHeight();
+			float curHalfHeight = comp_capsule->GetUnscaledCapsuleHalfHeight();
+			FVector curMeshPos = GetMesh()->GetRelativeLocation();
+			auto tHalfHeight = FMath::FInterpConstantTo(curHalfHeight, defaultHalfHeight, DeltaTime, 250);
+			auto tMeshPos = FMath::VInterpConstantTo(curMeshPos, _OriginMeshRelativePos, DeltaTime, 250);
+
+			// WVLogI(TEXT("end : %f_%f_%f"), curHalfHeight, defaultHalfHeight, tHalfHeight)
+
+			comp_capsule->SetCapsuleHalfHeight(tHalfHeight, true);
+			GetMesh()->SetRelativeLocation(tMeshPos);
+
+			if (tHalfHeight >= defaultHalfHeight)
+			{
+				// WVLogI(TEXT("end done"))
+				_bDodgeChangeColliderEnd = false;
+			}
+		}
+	}
+
 	ShowDebug_Direction();
 	ShowDebug_Velocity();
 	ShowDebug_LastMovementInputVector();
-
-	if (bBegin)
-	{
-		auto comp_capsule = GetCapsuleComponent();
-		if (comp_capsule)
-		{
-			float originCapsuleHalfHeight = GetDefaultHalfHeight();
-			float curHeight = comp_capsule->GetUnscaledCapsuleHalfHeight();
-			FVector curMeshPos = GetMesh()->GetRelativeLocation();
-			FVector meshToRelativePos = _OriginMeshRelativePos + FVector(0.0f, 0.0f, FMath::Abs(originCapsuleHalfHeight - _DodgeCapsuleHalfHeight));
-
-			// FMath::FInterpConstantTo()
-			auto f = FMath::FInterpConstantTo(curHeight, _DodgeCapsuleHalfHeight, DeltaTime, 250);
-			auto pos = FMath::VInterpConstantTo(curMeshPos, meshToRelativePos, DeltaTime, 250);
-
-			WVLogI(TEXT("begin : %f_%f_%f"), curHeight, _DodgeCapsuleHalfHeight, f)
-
-			comp_capsule->SetCapsuleHalfHeight(f, true);
-			GetMesh()->SetRelativeLocation(pos);
-			
-			// comp_capsule->SetCapsuleHalfHeight(_DodgeCapsuleHalfHeight, true);
-			// GetMesh()->SetRelativeLocation(meshToRelativePos);
-
-			if (f <= _DodgeCapsuleHalfHeight)
-			{
-				WVLogI(TEXT("begin done"))
-				bBegin = false;
-			}
-
-			// WVLogI(TEXT("begin : %f"), _DodgeCapsuleHalfHeight)
-			// WVLogI(TEXT("begin : %s"), *(meshToRelativePos.ToString()))
-		}
-	}
-	else if (bEnd)
-	{
-		float defaultHeight = GetDefaultHalfHeight();
-		auto comp_capsule = GetCapsuleComponent();
-		if (comp_capsule)
-		{
-			float curHeight = comp_capsule->GetUnscaledCapsuleHalfHeight();
-			FVector curMeshPos = GetMesh()->GetRelativeLocation();
-			auto f = FMath::FInterpConstantTo(curHeight, defaultHeight, DeltaTime, 250);
-			auto pos = FMath::VInterpConstantTo(curMeshPos, _OriginMeshRelativePos, DeltaTime, 250);
-			
-			WVLogI(TEXT("end : %f_%f_%f"), curHeight, defaultHeight, f)
-
-			comp_capsule->SetCapsuleHalfHeight(f, true);
-			GetMesh()->SetRelativeLocation(pos);
-			
-			// comp_capsule->SetCapsuleHalfHeight(defaultHeight, true);
-			// GetMesh()->SetRelativeLocation(_OriginMeshRelativePos);
-
-			if (f >= defaultHeight)
-			{
-				WVLogI(TEXT("end done"))
-				bEnd = false;
-			}
-
-			// WVLogI(TEXT("end : %f"), defaultHeight)
-			// WVLogI(TEXT("end : %s"), *(_OriginMeshRelativePos.ToString()))
-		}
-	}
 }
 
 // Called to bind functionality to input
@@ -300,12 +288,12 @@ void AActionCharacter::HandleAnimNotify_DodgeEnd()
 
 void AActionCharacter::HandleAnimNotify_DodgeChangeColliderBegin()
 {
-	bBegin = true;
+	_bDodgeChangeColliderBegin = true;
 }
 
 void AActionCharacter::HandleAnimNotify_DodgeChangeColliderEnd()
 {
-	bEnd = true;
+	_bDodgeChangeColliderEnd = true;
 }
 
 void AActionCharacter::ShowDebug_Direction()
