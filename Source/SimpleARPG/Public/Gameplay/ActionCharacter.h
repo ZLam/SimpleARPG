@@ -35,11 +35,17 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetSprintCostPerSecond() { return _SprintCostPerSecond; }
 
+	// UFUNCTION(BlueprintPure)
+	// FORCEINLINE bool IsRunning() { return FMath::Abs(GetVelocity().Size() - _RunSpeed) < 5; }
+
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsSprinting() { return _bSprinting; }
 
 	UFUNCTION(BlueprintCallable)
 	void SetSprint(bool bVal);
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsDodging() { return _bDodging; }
 
 	UFUNCTION(BlueprintCallable)
 	void Dodge();
@@ -50,6 +56,21 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMaxPower() { return _MaxPower; }
 
+	UFUNCTION(BlueprintCallable)
+	void RecoverPower();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleAnimNotify_DodgeEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleAnimNotify_DodgeChangeColliderBegin();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleAnimNotify_DodgeChangeColliderEnd();
+
+	bool bBegin;
+	bool bEnd;
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	bool _bReadyAtk;
@@ -57,7 +78,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float _AtkRange;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	FName _CharactorName;
 
 	UPROPERTY(VisibleAnywhere)
@@ -78,8 +99,25 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float _CurPower;
 
+	UPROPERTY(VisibleAnywhere)
+	float _DodgeCost;
+
+	UPROPERTY(EditDefaultsOnly)
+	float _RecoverPowerTime;
+
+	UPROPERTY(VisibleAnywhere)
+	FVector _OriginMeshRelativePos;
+
+	UPROPERTY(VisibleAnywhere)
+	float _DodgeCapsuleHalfHeight;
+
+	UPROPERTY(VisibleAnywhere)
+	bool _bDodging;
+
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Dodge;
+
+	FTimerHandle _Timer_RecoverPower;
 
 	void ShowDebug_Direction();
 

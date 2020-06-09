@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
+#include "TimerManager.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -21,6 +22,7 @@ AActionCharacter::AActionCharacter()
 	_AtkRange = 1000.0f;
 	
 	_bSprinting = false;
+	_bDodging = false;
 	
 	bShowDebug_Direction = false;
 	bShowDebug_Velocity = false;
@@ -41,6 +43,9 @@ void AActionCharacter::BeginPlay()
 		_RunSpeed = cfg_locomotion->RunSpeed;
 		_SprintSpeed = cfg_locomotion->SprintSpeed;
 		_SprintCostPerSecond = cfg_locomotion->SprintCostPerSecond;
+		_DodgeCost = cfg_locomotion->DodgeCost;
+		_RecoverPowerTime = cfg_locomotion->RecoverPowerTime;
+		_DodgeCapsuleHalfHeight = cfg_locomotion->DodgeCapsuleHalfHeight;
 
 		auto comp_move = GetCharacterMovement();
 		if (comp_move)
@@ -67,10 +72,14 @@ void AActionCharacter::BeginPlay()
 	{
 		WVLogW(TEXT("not found attrib cfg"))
 	}
+
+	_OriginMeshRelativePos = GetMesh()->GetRelativeLocation();
 }
 
 void AActionCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	auto &timerMgr = GetWorldTimerManager();
+	timerMgr.ClearAllTimersForObject(this);
 	UWVEventDispatcher::GetInstance()->RemoveAllListener(this);
 }
 
@@ -79,9 +88,88 @@ void AActionCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (_bSprinting && !_bDodging)
+	{
+		if (_CurPower <= 0)
+		{
+			SetSprint(false);
+		}
+		else
+		{
+			_CurPower -= (_SprintCostPerSecond * DeltaTime);
+			if (_CurPower < 0)
+			{
+				_CurPower = 0;
+			}
+		}
+		UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::PlayerPowerChange);
+	}
+
 	ShowDebug_Direction();
 	ShowDebug_Velocity();
 	ShowDebug_LastMovementInputVector();
+
+	if (bBegin)
+	{
+		auto comp_capsule = GetCapsuleComponent();
+		if (comp_capsule)
+		{
+			float originCapsuleHalfHeight = GetDefaultHalfHeight();
+			float curHeight = comp_capsule->GetUnscaledCapsuleHalfHeight();
+			FVector curMeshPos = GetMesh()->GetRelativeLocation();
+			FVector meshToRelativePos = _OriginMeshRelativePos + FVector(0.0f, 0.0f, FMath::Abs(originCapsuleHalfHeight - _DodgeCapsuleHalfHeight));
+
+			// FMath::FInterpConstantTo()
+			auto f = FMath::FInterpConstantTo(curHeight, _DodgeCapsuleHalfHeight, DeltaTime, 250);
+			auto pos = FMath::VInterpConstantTo(curMeshPos, meshToRelativePos, DeltaTime, 250);
+
+			WVLogI(TEXT("begin : %f_%f_%f"), curHeight, _DodgeCapsuleHalfHeight, f)
+
+			comp_capsule->SetCapsuleHalfHeight(f, true);
+			GetMesh()->SetRelativeLocation(pos);
+			
+			// comp_capsule->SetCapsuleHalfHeight(_DodgeCapsuleHalfHeight, true);
+			// GetMesh()->SetRelativeLocation(meshToRelativePos);
+
+			if (f <= _DodgeCapsuleHalfHeight)
+			{
+				WVLogI(TEXT("begin done"))
+				bBegin = false;
+			}
+
+			// WVLogI(TEXT("begin : %f"), _DodgeCapsuleHalfHeight)
+			// WVLogI(TEXT("begin : %s"), *(meshToRelativePos.ToString()))
+		}
+	}
+	else if (bEnd)
+	{
+		float defaultHeight = GetDefaultHalfHeight();
+		auto comp_capsule = GetCapsuleComponent();
+		if (comp_capsule)
+		{
+			float curHeight = comp_capsule->GetUnscaledCapsuleHalfHeight();
+			FVector curMeshPos = GetMesh()->GetRelativeLocation();
+			auto f = FMath::FInterpConstantTo(curHeight, defaultHeight, DeltaTime, 250);
+			auto pos = FMath::VInterpConstantTo(curMeshPos, _OriginMeshRelativePos, DeltaTime, 250);
+			
+			WVLogI(TEXT("end : %f_%f_%f"), curHeight, defaultHeight, f)
+
+			comp_capsule->SetCapsuleHalfHeight(f, true);
+			GetMesh()->SetRelativeLocation(pos);
+			
+			// comp_capsule->SetCapsuleHalfHeight(defaultHeight, true);
+			// GetMesh()->SetRelativeLocation(_OriginMeshRelativePos);
+
+			if (f >= defaultHeight)
+			{
+				WVLogI(TEXT("end done"))
+				bEnd = false;
+			}
+
+			// WVLogI(TEXT("end : %f"), defaultHeight)
+			// WVLogI(TEXT("end : %s"), *(_OriginMeshRelativePos.ToString()))
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -97,23 +185,40 @@ void AActionCharacter::SetSprint(bool bVal)
 	{
 		return;
 	}
+	
+	auto comp_move = GetCharacterMovement();
 
 	_bSprinting = bVal;
-	auto comp_move = GetCharacterMovement();
 
 	if (_bSprinting)
 	{
 		comp_move->MaxWalkSpeed = _SprintSpeed;
+
+		auto &timerMgr = GetWorldTimerManager();
+		if (timerMgr.TimerExists(_Timer_RecoverPower))
+		{
+			timerMgr.ClearTimer(_Timer_RecoverPower);
+		}
 	}
 	else
 	{
 		comp_move->MaxWalkSpeed = _RunSpeed;
+
+		if (_CurPower < _MaxPower)
+		{
+			RecoverPower();
+		}
 	}
 }
 
 void AActionCharacter::Dodge()
 {
 	if (!_AnimMontage_Dodge)
+	{
+		return;
+	}
+
+	if (_CurPower < _DodgeCost)
 	{
 		return;
 	}
@@ -144,10 +249,60 @@ void AActionCharacter::Dodge()
 		return;
 	}
 
+	auto &timerMgr = GetWorldTimerManager();
+	_CurPower -= _DodgeCost;
+	if (timerMgr.TimerExists(_Timer_RecoverPower))
+	{
+		timerMgr.ClearTimer(_Timer_RecoverPower);
+	}
+
+	_bDodging = true;
+
 	auto lastInputVector = GetLastMovementInputVector();
 	SetActorRotation(lastInputVector.Rotation());
 
 	animIns->Montage_Play(_AnimMontage_Dodge, 1.5f);
+
+	UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::PlayerPowerChange);
+}
+
+void AActionCharacter::RecoverPower()
+{
+	auto &timerMgr = GetWorldTimerManager();
+	if (!timerMgr.TimerExists(_Timer_RecoverPower))
+	{
+		FTimerDelegate callback;
+		callback.BindLambda(
+			[this, &timerMgr]()
+			{
+				timerMgr.ClearTimer(this->_Timer_RecoverPower);
+				_CurPower = _MaxPower;
+				UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::PlayerPowerChange);
+			}
+		);
+		timerMgr.SetTimer(_Timer_RecoverPower, callback, _RecoverPowerTime, false);
+	}
+}
+
+void AActionCharacter::HandleAnimNotify_DodgeEnd()
+{
+	_bDodging = false;
+	if (!_bSprinting)
+	{
+		RecoverPower();
+	}
+}
+
+void AActionCharacter::HandleAnimNotify_DodgeChangeColliderBegin()
+{
+	WVLogI(TEXT("333"))
+	bBegin = true;
+}
+
+void AActionCharacter::HandleAnimNotify_DodgeChangeColliderEnd()
+{
+	WVLogI(TEXT("444"))
+	bEnd = true;
 }
 
 void AActionCharacter::ShowDebug_Direction()

@@ -32,7 +32,7 @@ enum class EWVItemType : uint8
 };
 
 /**
- * gameplay道具类型枚举
+ * gameplay品质枚举
  */
 UENUM(BlueprintType)
 enum class EWVQualityType : uint8
@@ -58,9 +58,12 @@ struct FWVConfig_LocomotionRow : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 public:
 	FWVConfig_LocomotionRow():
-	RunSpeed(600),
-	SprintSpeed(800),
-	SprintCostPerSecond(10)
+	RunSpeed(600.0f),
+	SprintSpeed(800.0f),
+	SprintCostPerSecond(10.0f),
+	DodgeCost(30.0f),
+	RecoverPowerTime(1.0f),
+	DodgeCapsuleHalfHeight(50.0f)
 	{}
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float RunSpeed;
@@ -68,6 +71,12 @@ public:
 	float SprintSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float SprintCostPerSecond;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DodgeCost;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RecoverPowerTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DodgeCapsuleHalfHeight;
 };
 
 /**
@@ -79,7 +88,7 @@ struct FWVConfig_AttributeRow : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 public:
 	FWVConfig_AttributeRow():
-	Power(100)
+	Power(100.0f)
 	{}
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Power;
