@@ -9,6 +9,7 @@
  * 
  */
 
+//Delegate要传参要用的结构
 USTRUCT(BlueprintType)
 struct WVMODULE_API FWVEventDelegateParams_One
 {
@@ -20,6 +21,7 @@ struct WVMODULE_API FWVEventDelegateParams_One
 	void* dataPtr;
 };
 
+//从BP接受参数用
 struct WVMODULE_API FWVEventParams_BP
 {
 	UProperty *propertyInfoPtr;
