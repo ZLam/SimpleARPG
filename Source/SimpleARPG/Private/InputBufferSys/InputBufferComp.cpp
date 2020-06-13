@@ -127,7 +127,7 @@ void UInputBufferComp::HandlePostProcessInput(const float DeltaTime, const bool 
 	}
 }
 
-bool UInputBufferComp::Match(FKey InKey, EInputMatchStyle InMatchStyle, const FInputMatchParams& InMatchParams, bool bNeedInvalid)
+bool UInputBufferComp::Match(FKey InKey, EWVInputMatchStyle InMatchStyle, const FWVInputMatchData& InMatchData, bool bNeedInvalid)
 {
 	bool ret = false;
 	const FInputInfo *tInputInfo = _CurInputInfoMap.Find(InKey);
@@ -137,9 +137,9 @@ bool UInputBufferComp::Match(FKey InKey, EInputMatchStyle InMatchStyle, const FI
 	}
 	switch (InMatchStyle)
 	{
-		case EInputMatchStyle::OnlyLastTime:
+		case EWVInputMatchStyle::OnlyLastTime:
 		{
-			ret = InMatchParams.CompareLastTime - tInputInfo->LastTime <= InMatchParams.ValidDiff_LastTime;
+			ret = GetWorld()->GetRealTimeSeconds() - tInputInfo->LastTime <= InMatchData.ValidDiff_LastTime;
 			break;
 		}
 	}
@@ -148,6 +148,19 @@ bool UInputBufferComp::Match(FKey InKey, EInputMatchStyle InMatchStyle, const FI
 		Invalid();
 	}
 	return ret;
+}
+
+bool UInputBufferComp::MatchAll(const TArray<FKey>& InKeys, const TArray<EWVInputMatchStyle>& InMatchStyles,
+	const TArray<FWVInputMatchData>& InMatchDataArr, bool bNeedInvalid)
+{
+	for (int32 i = 0; i < InKeys.Num(); i++)
+	{
+		if (!Match(InKeys[i], InMatchStyles[i], InMatchDataArr[i], bNeedInvalid))
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 void UInputBufferComp::Invalid()

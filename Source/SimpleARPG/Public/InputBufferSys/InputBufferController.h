@@ -24,7 +24,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void HandlePostInput();
 
+	UFUNCTION()
+	FORCEINLINE UInputBufferComp* GetInputBufferComp() { return _Comp_InputBuffer; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UInputBufferComp *Comp_InputBuffer;
+	UInputBufferComp *_Comp_InputBuffer;
 };

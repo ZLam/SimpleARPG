@@ -7,7 +7,7 @@
 
 AInputBufferController::AInputBufferController()
 {
-	Comp_InputBuffer = CreateDefaultSubobject<UInputBufferComp>(TEXT("Comp_InputBuffer"));
+	_Comp_InputBuffer = CreateDefaultSubobject<UInputBufferComp>(TEXT("Comp_InputBuffer"));
 
 	//0_0_0_1_0
 	// WVLogI(TEXT("%d_%d_%d_%d_%d"),
@@ -30,7 +30,7 @@ void AInputBufferController::PostProcessInput(const float DeltaTime, const bool 
 {
 	Super::PostProcessInput(DeltaTime, bGamePaused);
 
-	Comp_InputBuffer->HandlePostProcessInput(DeltaTime, bGamePaused, PlayerInput);
+	_Comp_InputBuffer->HandlePostProcessInput(DeltaTime, bGamePaused, PlayerInput);
 	
 	// Comp_InputBuffer->PrintLog();
 }

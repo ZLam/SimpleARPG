@@ -22,6 +22,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool bShowDebug_LastMovementInputVector;
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FName GetActionCharacterName() { return _CharactorName; }
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsReadyAtk() { return _bReadyAtk; }

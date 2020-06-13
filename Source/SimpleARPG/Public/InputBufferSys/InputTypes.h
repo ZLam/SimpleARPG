@@ -12,12 +12,6 @@ enum class EInputKeyState : uint8
 	Released	UMETA(DisplayName = "Released"),
 };
 
-UENUM(BlueprintType)
-enum class EInputMatchStyle : uint8
-{
-	OnlyLastTime		UMETA(DisplayName = "OnlyLastTime"),
-};
-
 USTRUCT()
 struct FInputInfo
 {
@@ -35,15 +29,4 @@ public:
 	float StartTime;
 	float LastTime;
 	FVector AxisValue;
-};
-
-USTRUCT(BlueprintType)
-struct FInputMatchParams
-{
-	GENERATED_USTRUCT_BODY()
-public:
-	UPROPERTY(BlueprintReadWrite)
-	float CompareLastTime;
-	UPROPERTY(BlueprintReadWrite)
-	float ValidDiff_LastTime;
 };

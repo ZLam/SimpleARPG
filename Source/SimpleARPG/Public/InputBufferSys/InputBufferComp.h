@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "InputCoreTypes.h"
 #include "InputBufferSys/InputTypes.h"
+#include "WVModule/Public/WVGameTypes.h"
 #include "InputBufferComp.generated.h"
 
 class UPlayerInput;
@@ -22,7 +23,10 @@ public:
 	TArray<FKey> RegistKey;
 
 	UFUNCTION(BlueprintCallable)
-	bool Match(FKey InKey, EInputMatchStyle InMatchStyle, const FInputMatchParams &InMatchParams, bool bNeedInvalid = false);
+	bool Match(FKey InKey, EWVInputMatchStyle InMatchStyle, const FWVInputMatchData &InMatchParams, bool bNeedInvalid = false);
+
+	UFUNCTION(BlueprintCallable)
+	bool MatchAll(const TArray<FKey> &InKeys, const TArray<EWVInputMatchStyle> &InMatchStyles, const TArray<FWVInputMatchData> &InMatchParamsArr, bool bNeedInvalid = false);
 
 	UFUNCTION(BlueprintCallable)
 	void Invalid();
