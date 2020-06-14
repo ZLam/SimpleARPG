@@ -7,6 +7,7 @@
 #include "ActionCharacter.generated.h"
 
 class UAnimMontage;
+class UComboMachineComp;
 
 UCLASS()
 class SIMPLEARPG_API AActionCharacter : public ACharacter
@@ -75,6 +76,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HandleAnimNotify_DodgeChangeColliderEnd();
 
+	UFUNCTION(BlueprintPure)
+	UComboMachineComp* GetComboMachineComp() { return _Comp_ComboMachine; }
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	bool _bReadyAtk;
@@ -120,6 +124,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Dodge;
+
+	UPROPERTY(EditAnywhere)
+	UComboMachineComp *_Comp_ComboMachine;
 
 	bool _bDodgeChangeColliderBegin;
 

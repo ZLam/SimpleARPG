@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class SIMPLEARPG_API UComboNode : public UObject
 {
 	GENERATED_BODY()
@@ -20,20 +20,23 @@ public:
 	UFUNCTION()
 	void InitData(const TArray<FKey> &InMatchKeys, const FString &InComboName, const int32 &InComboIndex);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintPure)
 	UComboNode* GetChild(const TArray<FKey> &InMatchKeys);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void AddChild(UComboNode *InNode);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE TArray<UComboNode*>& GetChildren() { return _Children; }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE FString GetComboName() { return _ComboName; }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetComboIndex() { return _ComboIndex; }
+
+	UFUNCTION(BlueprintPure)
+	AActor* GetOwner();
 
 	//自定义条件
 	UFUNCTION(BlueprintNativeEvent)
@@ -47,7 +50,7 @@ protected:
 	UPROPERTY()
 	TArray<UComboNode*> _Children;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY()
 	TMap<FKey, bool> _MatchKeysMap;
 
 	UPROPERTY(VisibleAnywhere)

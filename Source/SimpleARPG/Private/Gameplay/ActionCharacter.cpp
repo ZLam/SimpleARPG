@@ -11,6 +11,7 @@
 #include "Animation/AnimInstance.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
+#include "ComboSys/ComboMachineComp.h"
 
 // Sets default values
 AActionCharacter::AActionCharacter()
@@ -31,6 +32,8 @@ AActionCharacter::AActionCharacter()
 	bShowDebug_LastMovementInputVector = false;
 
 	_AnimMontage_Dodge = nullptr;
+
+	_Comp_ComboMachine = CreateDefaultSubobject<UComboMachineComp>(TEXT("Comp_ComboMachine"));
 }
 
 // Called when the game starts or when spawned

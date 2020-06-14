@@ -94,6 +94,26 @@ void UComboMachineComp::Start()
 		return;
 	}
 	
+	_Step();
+}
+
+void UComboMachineComp::Step()
+{
+	if (!IsRunning())
+	{
+		return;
+	}
+
+	_Step();
+}
+
+void UComboMachineComp::Resume()
+{
+	_CurNode = _EntryNode;
+}
+
+void UComboMachineComp::_Step()
+{
 	AActionCharacter *tCharacter = Cast<AActionCharacter>(GetOwner());
 	if (!tCharacter)
 	{
@@ -130,7 +150,7 @@ void UComboMachineComp::Start()
 			auto &matchKeys = comboInfo->ComboKeys[comboIndex].MatchKeys;
 			auto &matchStyles = comboInfo->ComboMatchStyles[comboIndex].MatchStyles;
 			auto &matchDatas = comboInfo->ComboMatchDatas[comboIndex].MatchDatas;
-			
+
 			bool bMatch = comp_inputBuffer->MatchAll(matchKeys, matchStyles, matchDatas);
 
 			if (bMatch && tNode->Condition())
@@ -138,19 +158,9 @@ void UComboMachineComp::Start()
 				tNode->Do();
 
 				_CurNode = tNode;
-				
+
 				break;
 			}
 		}
 	}
-}
-
-void UComboMachineComp::Step()
-{
-	
-}
-
-void UComboMachineComp::Resume()
-{
-	
 }

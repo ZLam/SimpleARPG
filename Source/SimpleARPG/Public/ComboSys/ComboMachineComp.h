@@ -17,23 +17,25 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UComboNode> Class_ComboNode;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintPure)
 	bool IsRunning() { return _CurNode != _EntryNode; }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void Start();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void Step();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void Resume();
 
+	void _Step();
+
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	UComboNode *_EntryNode;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	UComboNode *_CurNode;
 
 public:

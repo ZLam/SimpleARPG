@@ -2,6 +2,7 @@
 
 
 #include "ComboSys/ComboNode.h"
+#include "ComboSys/ComboMachineComp.h"
 
 UComboNode::UComboNode()
 {
@@ -45,6 +46,20 @@ void UComboNode::AddChild(UComboNode *InNode)
 	_Children.Push(InNode);
 }
 
+AActor* UComboNode::GetOwner()
+{
+	auto outer = GetOuter();
+	if (outer)
+	{
+		auto comboMachine = Cast<UComboMachineComp>(outer);
+		if (comboMachine)
+		{
+			return comboMachine->GetOwner();
+		}
+	}
+	return nullptr;
+}
+
 bool UComboNode::Condition_Implementation()
 {
 	return true;
@@ -52,5 +67,5 @@ bool UComboNode::Condition_Implementation()
 
 void UComboNode::Do_Implementation()
 {
-
+	
 }
