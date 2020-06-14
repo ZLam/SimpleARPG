@@ -142,6 +142,18 @@ bool UInputBufferComp::Match(FKey InKey, EWVInputMatchStyle InMatchStyle, const 
 			ret = GetWorld()->GetRealTimeSeconds() - tInputInfo->LastTime <= InMatchData.ValidDiff_LastTime;
 			break;
 		}
+		case EWVInputMatchStyle::AxisLR_WithLastTime:
+		{
+			if (InKey.IsFloatAxis())
+			{
+				bool bLastTime = GetWorld()->GetRealTimeSeconds() - tInputInfo->LastTime <= InMatchData.ValidDiff_LastTime;
+				bool bAxisL = FMath::Abs(tInputInfo->AxisValue.X - -1) <= InMatchData.ValidDiff_AxisL;
+				bool bAxisR = FMath::Abs(tInputInfo->AxisValue.X - 1) <= InMatchData.ValidDiff_AxisR;
+				
+				ret = (bLastTime) && (bAxisL || bAxisR);
+			}
+			break;
+		}
 	}
 	if (bNeedInvalid)
 	{

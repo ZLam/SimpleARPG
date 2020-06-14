@@ -21,15 +21,15 @@ public:
 	bool IsRunning() { return _CurNode != _EntryNode; }
 
 	UFUNCTION(BlueprintCallable)
-	void Start();
+	bool Start();
 
 	UFUNCTION(BlueprintCallable)
-	void Step();
+	bool Step();
 
 	UFUNCTION(BlueprintCallable)
 	void Resume();
 
-	void _Step();
+	bool _Step();
 
 protected:
 	UPROPERTY(VisibleAnywhere)

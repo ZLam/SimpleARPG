@@ -18,7 +18,7 @@ public:
 	UComboNode();
 	
 	UFUNCTION()
-	void InitData(const TArray<FKey> &InMatchKeys, const FString &InComboName, const int32 &InComboIndex);
+	void InitData(const TArray<FKey> &InMatchKeys, const FString &InComboName, const int32 &InComboIndex, const int32 &InPriority);
 
 	UFUNCTION(BlueprintPure)
 	UComboNode* GetChild(const TArray<FKey> &InMatchKeys);
@@ -34,6 +34,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetComboIndex() { return _ComboIndex; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetPriority() { return _Priority; }
 
 	UFUNCTION(BlueprintPure)
 	AActor* GetOwner();
@@ -52,10 +55,10 @@ protected:
 	
 	UPROPERTY()
 	TMap<FKey, bool> _MatchKeysMap;
-
-	UPROPERTY(VisibleAnywhere)
+	
 	FString _ComboName;
-
-	UPROPERTY(VisibleAnywhere)
+	
 	int32 _ComboIndex;
+
+	int32 _Priority;
 };

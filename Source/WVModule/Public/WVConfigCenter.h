@@ -103,7 +103,6 @@ public:
 	TArray<FWVInputMatchData> MatchDatas;
 };
 
-
 USTRUCT(BlueprintType)
 struct FWVConfig_ComboInfo
 {
@@ -111,6 +110,8 @@ struct FWVConfig_ComboInfo
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FWVConfig_ComboMatchKeys> ComboKeys;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<int32> ComboPrioritys;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UAnimMontage> ComboMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

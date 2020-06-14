@@ -65,7 +65,12 @@ void UComboMachineComp::BeginPlay()
 						if (!tNode)
 						{
 							tNode = NewObject<UComboNode>(this, Class_ComboNode);
-							tNode->InitData(comboInfo.ComboKeys[i].MatchKeys, comboName, comboIndex);
+							tNode->InitData(
+								comboInfo.ComboKeys[i].MatchKeys,
+								comboName,
+								comboIndex,
+								comboInfo.ComboPrioritys[i]
+							);
 							_CurNode->AddChild(tNode);
 						}
 						_CurNode = tNode;
@@ -87,24 +92,24 @@ void UComboMachineComp::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// ...
 }
 
-void UComboMachineComp::Start()
+bool UComboMachineComp::Start()
 {
 	if (IsRunning())
 	{
-		return;
+		return false;
 	}
 	
-	_Step();
+	return _Step();
 }
 
-void UComboMachineComp::Step()
+bool UComboMachineComp::Step()
 {
 	if (!IsRunning())
 	{
-		return;
+		return false;
 	}
 
-	_Step();
+	return _Step();
 }
 
 void UComboMachineComp::Resume()
@@ -112,30 +117,30 @@ void UComboMachineComp::Resume()
 	_CurNode = _EntryNode;
 }
 
-void UComboMachineComp::_Step()
+bool UComboMachineComp::_Step()
 {
 	AActionCharacter *tCharacter = Cast<AActionCharacter>(GetOwner());
 	if (!tCharacter)
 	{
-		return;
+		return false;
 	}
 
 	auto cfg_combo = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboRow>(EWVConfigName::Combo, tCharacter->GetActionCharacterName());
 	if (!cfg_combo)
 	{
-		return;
+		return false;
 	}
 
 	auto inputCtrl = Cast<AInputBufferController>(tCharacter->GetController());
 	if (!inputCtrl)
 	{
-		return;
+		return false;
 	}
 
 	auto comp_inputBuffer = inputCtrl->GetInputBufferComp();
 	if (!comp_inputBuffer)
 	{
-		return;
+		return false;
 	}
 
 	auto tNodes = _CurNode->GetChildren();
@@ -163,4 +168,6 @@ void UComboMachineComp::_Step()
 			}
 		}
 	}
+
+	return true;
 }
