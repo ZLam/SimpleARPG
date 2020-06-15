@@ -79,6 +79,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	UComboMachineComp* GetComboMachineComp() { return _Comp_ComboMachine; }
 
+	UFUNCTION(BlueprintPure)
+	bool IsLockDodge() { return _bLockDodge; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetLockDodge(bool val) { _bLockDodge = val; }
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	bool _bReadyAtk;
@@ -127,6 +133,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UComboMachineComp *_Comp_ComboMachine;
+
+	UPROPERTY(VisibleAnywhere)
+	bool _bLockDodge;
 
 	bool _bDodgeChangeColliderBegin;
 

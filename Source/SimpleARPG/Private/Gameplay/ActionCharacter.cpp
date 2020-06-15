@@ -26,6 +26,7 @@ AActionCharacter::AActionCharacter()
 	_bDodging = false;
 	_bDodgeChangeColliderBegin = false;
 	_bDodgeChangeColliderEnd = false;
+	_bLockDodge = false;
 	
 	bShowDebug_Direction = false;
 	bShowDebug_Velocity = false;
@@ -209,6 +210,11 @@ void AActionCharacter::SetSprint(bool bVal)
 
 void AActionCharacter::Dodge()
 {
+	if (_bLockDodge)
+	{
+		return;
+	}
+	
 	if (!_AnimMontage_Dodge)
 	{
 		return;
@@ -258,6 +264,14 @@ void AActionCharacter::Dodge()
 	SetActorRotation(lastInputVector.Rotation());
 
 	animIns->Montage_Play(_AnimMontage_Dodge, 1.5f);
+
+	if (_Comp_ComboMachine)
+	{
+		if (_Comp_ComboMachine->IsRunning())
+		{
+			_Comp_ComboMachine->Resume();
+		}
+	}
 
 	UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::PlayerPowerChange);
 }

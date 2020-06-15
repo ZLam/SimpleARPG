@@ -60,8 +60,8 @@ public:
 	float ValidDiff_LastTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ValidDiff_AxisL;		//0.0 - 1.0
+	float ValidDiff_AxisL;		//0.0 ~ 1.0
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float ValidDiff_AxisR;		//0.0 - 1.0
+	float ValidDiff_AxisR;		//0.0 ~ 1.0
 };
