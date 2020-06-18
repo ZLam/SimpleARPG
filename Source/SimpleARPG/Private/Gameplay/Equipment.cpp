@@ -2,12 +2,15 @@
 
 
 #include "Gameplay/Equipment.h"
+#include "HitCollector/HitCollectorComp.h"
+
 // Sets default values
 AEquipment::AEquipment()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	// PrimaryActorTick.bCanEverTick = true;
+	
+	_Comp_HitCollector = CreateDefaultSubobject<UHitCollectorComp>(TEXT("Comp_HitCollector"));
 }
 
 // Called when the game starts or when spawned

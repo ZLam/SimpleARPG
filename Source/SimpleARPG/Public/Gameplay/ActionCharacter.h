@@ -19,6 +19,8 @@ public:
 	FName SocketName;
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AEquipment> Class_Equip;
+	UPROPERTY(EditDefaultsOnly)
+	FName EquipName;
 };
 
 UCLASS()
@@ -97,6 +99,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetLockDodge(bool val) { _bLockDodge = val; }
 
+	UFUNCTION(BlueprintPure)
+	AEquipment* GetEquipment(const FName &InEquipName) { return _EquipMap.FindRef(InEquipName); }
+
 protected:
 	UPROPERTY(VisibleAnywhere)
 	bool _bReadyAtk;
@@ -151,6 +156,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FCharacterEquipInfo> _EquipInfos;
+
+	UPROPERTY(VisibleAnywhere)
+	TMap<FName, AEquipment*> _EquipMap;
 
 	bool _bDodgeChangeColliderBegin;
 

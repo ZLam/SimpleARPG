@@ -86,10 +86,29 @@ void AActionCharacter::BeginPlay()
 	for (auto &tEquipInfo : _EquipInfos)
 	{
 		const USkeletalMeshSocket *sock = GetMesh()->GetSocketByName(tEquipInfo.SocketName);
-		if (sock)
+		
+		if (!sock)
 		{
-			auto tEquipActor = GetWorld()->SpawnActor(tEquipInfo.Class_Equip);
+			WVLogW(TEXT("create equip fail, not fount socket '%s'"), *(tEquipInfo.SocketName.ToString()))
+		}
+
+		if (_EquipMap.Contains(tEquipInfo.EquipName))
+		{
+			WVLogW(TEXT("create equip fail, EquipName repeat '%s'"), *(tEquipInfo.EquipName.ToString()))
+		}
+
+		FActorSpawnParameters tParams;
+		tParams.Owner = this;
+
+		auto tEquipActor = GetWorld()->SpawnActor(tEquipInfo.Class_Equip, nullptr, nullptr, tParams);
+		if (tEquipActor)
+		{
 			sock->AttachActor(tEquipActor, GetMesh());
+			_EquipMap.Add(tEquipInfo.EquipName, Cast<AEquipment>(tEquipActor));
+		}
+		else
+		{
+			WVLogW(TEXT("create equip fail, cant spawn"))
 		}
 	}
 }

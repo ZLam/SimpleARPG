@@ -3,7 +3,9 @@
 
 #include "HitCollector/HitCollectorComp.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "Components/ShapeComponent.h"
+#include "WVModule/Public/Logger/WVLog.h"
 
 // Sets default values for this component's properties
 UHitCollectorComp::UHitCollectorComp()
@@ -28,27 +30,40 @@ void UHitCollectorComp::BeginPlay()
 	// ...
 
 	auto tOwner = GetOwner();
-
-	if (tOwner)
+	
+	if (!tOwner)
 	{
 		return;
 	}
 
+	WVLogI(TEXT("111 %s"), *(tOwner->GetName()))
+
 	for (auto &tTag : _ColliderTags)
 	{
+		WVLogI(TEXT("222"))
+		
 		auto tColliderArr = tOwner->GetComponentsByTag(UShapeComponent::StaticClass(), tTag);
 		for (auto tCollider : tColliderArr)
 		{
+			WVLogI(TEXT("333"))
+			
 			_Colliders.Push(Cast<UShapeComponent>(tCollider));
 		}
 	}
 
 	for (auto &tChannel : _HitChannels)
 	{
+		WVLogI(TEXT("444"))
+		
 		_ChannelsQueryParams.AddObjectTypesToQuery(tChannel);
 	}
 
 	_CollisionQueryParams.AddIgnoredActor(tOwner);
+	auto tOwnerCharacter = GetOwnerCharacter();
+	if (tOwnerCharacter)
+	{
+		_CollisionQueryParams.AddIgnoredActor(tOwnerCharacter);
+	}
 }
 
 
@@ -58,6 +73,8 @@ void UHitCollectorComp::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+
+	HandleHit();
 }
 
 void UHitCollectorComp::Enable()
@@ -80,6 +97,25 @@ void UHitCollectorComp::Disable()
 	}
 
 	_bEnable = false;
+}
+
+ACharacter* UHitCollectorComp::GetOwnerCharacter()
+{
+	return _GetOwnerCharacter(GetOwner());
+}
+
+ACharacter* UHitCollectorComp::_GetOwnerCharacter(AActor* InOwner)
+{
+	if (!InOwner)
+	{
+		return nullptr;
+	}
+	ACharacter *character = Cast<ACharacter>(InOwner);
+	if (character)
+	{
+		return  character;
+	}
+	return _GetOwnerCharacter(InOwner->GetOwner());
 }
 
 void UHitCollectorComp::ResetLastPosArr()

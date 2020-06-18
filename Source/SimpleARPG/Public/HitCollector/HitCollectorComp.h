@@ -8,6 +8,7 @@
 #include "HitCollectorComp.generated.h"
 
 class UShapeComponent;
+class ACharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FHitCollectorCallback, const FHitResult&, HitResult, AActor*, Causer, UActorComponent*, CauserComp);
 
@@ -17,7 +18,7 @@ class SIMPLEARPG_API UHitCollectorComp : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintAssignable)
 	FHitCollectorCallback HitCallback;
 	
 	UFUNCTION(BlueprintPure)
@@ -28,6 +29,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Disable();
+
+	UFUNCTION(BlueprintCallable)
+	ACharacter* GetOwnerCharacter();
 
 protected:
 	UPROPERTY(VisibleAnywhere)
@@ -53,6 +57,8 @@ protected:
 
 	UFUNCTION()
 	void ResetLastPosArr();
+
+	ACharacter* _GetOwnerCharacter(AActor* InOwner);
 
 public:	
 	// Sets default values for this component's properties
