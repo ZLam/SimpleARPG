@@ -12,6 +12,8 @@
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
 #include "ComboSys/ComboMachineComp.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Gameplay/Equipment.h"
 
 // Sets default values
 AActionCharacter::AActionCharacter()
@@ -80,6 +82,16 @@ void AActionCharacter::BeginPlay()
 	}
 
 	_OriginMeshRelativePos = GetMesh()->GetRelativeLocation();
+
+	for (auto &tEquipInfo : _EquipInfos)
+	{
+		const USkeletalMeshSocket *sock = GetMesh()->GetSocketByName(tEquipInfo.SocketName);
+		if (sock)
+		{
+			auto tEquipActor = GetWorld()->SpawnActor(tEquipInfo.Class_Equip);
+			sock->AttachActor(tEquipActor, GetMesh());
+		}
+	}
 }
 
 void AActionCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)

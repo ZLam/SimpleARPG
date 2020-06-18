@@ -8,6 +8,18 @@
 
 class UAnimMontage;
 class UComboMachineComp;
+class AEquipment;
+
+USTRUCT()
+struct FCharacterEquipInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditDefaultsOnly)
+	FName SocketName;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AEquipment> Class_Equip;
+};
 
 UCLASS()
 class SIMPLEARPG_API AActionCharacter : public ACharacter
@@ -128,14 +140,17 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool _bDodging;
 
+	UPROPERTY(VisibleAnywhere)
+	bool _bLockDodge;
+
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Dodge;
 
 	UPROPERTY(EditAnywhere)
 	UComboMachineComp *_Comp_ComboMachine;
 
-	UPROPERTY(VisibleAnywhere)
-	bool _bLockDodge;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FCharacterEquipInfo> _EquipInfos;
 
 	bool _bDodgeChangeColliderBegin;
 
