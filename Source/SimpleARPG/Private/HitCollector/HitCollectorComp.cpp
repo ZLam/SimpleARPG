@@ -17,8 +17,9 @@ UHitCollectorComp::UHitCollectorComp()
 	// ...
 
 	_bEnable = false;
+	_bHitOnce = true;
 
-	SetTickGroup(ETickingGroup::TG_PostPhysics);		//
+	SetTickGroup(ETickingGroup::TG_PostPhysics);		//使用本帧的数据而不是上一帧
 }
 
 
@@ -36,25 +37,19 @@ void UHitCollectorComp::BeginPlay()
 		return;
 	}
 
-	WVLogI(TEXT("111 %s"), *(tOwner->GetName()))
-
 	for (auto &tTag : _ColliderTags)
 	{
-		WVLogI(TEXT("222"))
-		
 		auto tColliderArr = tOwner->GetComponentsByTag(UShapeComponent::StaticClass(), tTag);
 		for (auto tCollider : tColliderArr)
 		{
-			WVLogI(TEXT("333"))
-			
-			_Colliders.Push(Cast<UShapeComponent>(tCollider));
+			auto comp_shape = Cast<UShapeComponent>(tCollider);
+			_Colliders.Push(comp_shape);
+			_HitOnceMap.Emplace(comp_shape, MakeShareable(new FHitOnceInfo));
 		}
 	}
 
 	for (auto &tChannel : _HitChannels)
 	{
-		WVLogI(TEXT("444"))
-		
 		_ChannelsQueryParams.AddObjectTypesToQuery(tChannel);
 	}
 
@@ -87,6 +82,7 @@ void UHitCollectorComp::Enable()
 	_bEnable = true;
 
 	ResetLastPosArr();
+	ResetHitOnceMap();
 }
 
 void UHitCollectorComp::Disable()
@@ -127,6 +123,18 @@ void UHitCollectorComp::ResetLastPosArr()
 	}
 }
 
+void UHitCollectorComp::ResetHitOnceMap()
+{
+	if (!_bHitOnce)
+	{
+		return;
+	}
+	for (auto elem : _HitOnceMap)
+	{
+		elem.Value->Reset();
+	}
+}
+
 void UHitCollectorComp::HandleHit()
 {
 	if (!_bEnable)
@@ -137,6 +145,12 @@ void UHitCollectorComp::HandleHit()
 	for (int32 i = 0; i < _Colliders.Num(); ++i)
 	{
 		auto tCollider = _Colliders[i];
+		auto pHitOnceInfo = _HitOnceMap.Find(tCollider);
+
+		if ((_bHitOnce) && (!pHitOnceInfo || !pHitOnceInfo->IsValid()))
+		{
+			continue;
+		}
 		
 		TArray<FHitResult> hitResults;
 		GetWorld()->SweepMultiByObjectType(
@@ -147,13 +161,34 @@ void UHitCollectorComp::HandleHit()
 			_ChannelsQueryParams,
 			tCollider->GetCollisionShape(),
 			_CollisionQueryParams
-		);
+		);			//该方法凡是指定的Channels都会hit，唔理系Ignore，Overlap还是Block
 
 		for (int32 j = 0; j < hitResults.Num(); ++j)
 		{
-			if (HitCallback.IsBound())
+			auto tHitResult = hitResults[j];
+
+			if (tHitResult.Actor.IsValid() && tHitResult.Component.IsValid())
 			{
-				HitCallback.Broadcast(hitResults[j], GetOwner(), tCollider);
+				if (_bHitOnce)
+				{
+					bool bHited = (*pHitOnceInfo)->IsHited(tHitResult.Actor.Get());
+
+					// WVLogI(TEXT("111 %s_%p_%d"), *(tHitResult.Actor->GetName()), tHitResult.Actor.Get(), bHited)
+					
+					if (bHited)
+					{
+						continue;
+					}
+
+					(*pHitOnceInfo)->Hited(tHitResult.Actor.Get());
+					
+					// WVLogI(TEXT("222 %s_%p_%d"), *(tHitResult.Actor->GetName()), tHitResult.Actor.Get(), 1)
+				}
+
+				if (HitCallback.IsBound())
+				{
+					HitCallback.Broadcast(hitResults[j], GetOwner(), tCollider);
+				}
 			}
 		}
 	}

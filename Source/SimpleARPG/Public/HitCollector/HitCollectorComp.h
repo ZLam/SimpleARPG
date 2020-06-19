@@ -12,6 +12,30 @@ class ACharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FHitCollectorCallback, const FHitResult&, HitResult, AActor*, Causer, UActorComponent*, CauserComp);
 
+USTRUCT()
+struct FHitOnceInfo
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY()
+	TSet<UObject*> Hiteds;
+
+	bool IsHited(UObject *obj)
+	{
+		return Hiteds.Contains(obj);
+	}
+
+	void Hited(UObject *obj)
+	{
+		Hiteds.Add(obj);
+	}
+
+	void Reset()
+	{
+		Hiteds.Empty();
+	}
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEARPG_API UHitCollectorComp : public UActorComponent
 {
@@ -46,17 +70,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TEnumAsByte<ECollisionChannel>> _HitChannels;
 
+	UPROPERTY(EditDefaultsOnly)
+	bool _bHitOnce;
+
 	TArray<FVector> _LastPosArr;
 
 	FCollisionObjectQueryParams _ChannelsQueryParams;
 
 	FCollisionQueryParams _CollisionQueryParams;
+	
+	TMap<UShapeComponent*, TSharedPtr<FHitOnceInfo>> _HitOnceMap;
 
 	UFUNCTION()
 	void HandleHit();
 
 	UFUNCTION()
 	void ResetLastPosArr();
+
+	UFUNCTION()
+	void ResetHitOnceMap();
 
 	ACharacter* _GetOwnerCharacter(AActor* InOwner);
 
