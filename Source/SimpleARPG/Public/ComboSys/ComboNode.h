@@ -41,6 +41,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	AActor* GetOwner();
 
+	UFUNCTION(BlueprintPure)
+	FString GetComboActionName();
+
 	//自定义条件
 	UFUNCTION(BlueprintNativeEvent)
 	bool Condition();

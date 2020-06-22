@@ -29,7 +29,9 @@ void APlayerCharacter::ScanTargets(const TArray<FName> &tagNames)
 	
 	for (const FName &tagName : tagNames)
 	{
-		UGameplayStatics::GetAllActorsWithTag(this, tagName, _Targets);
+		TArray<AActor*> tArr;
+		UGameplayStatics::GetAllActorsWithTag(this, tagName, tArr);
+		_Targets.Append(tArr);
 	}
 }
 
@@ -81,4 +83,21 @@ void APlayerCharacter::LockTarget_Callback_Distance(float dist)
 			targetPoint->Show(ETargetPointType::Green);
 		}
 	}
+
+	//
+	// if (_Index_Target >= 0 && _Index_Target < _Targets.Num())
+	// {
+	// 	auto tTarget = _Targets[_Index_Target];
+	// 	if (tTarget)
+	// 	{
+	// 		// WVLogI(TEXT("%s_%s"), *(GetActorForwardVector().ToString()), *(tTarget->GetActorForwardVector().ToString()))
+	// 		
+	// 		auto dot = FVector::DotProduct(GetActorForwardVector(), tTarget->GetActorForwardVector());
+	// 		auto cross = FVector::CrossProduct(GetActorForwardVector(), tTarget->GetActorForwardVector());
+	// 		WVLogI(TEXT("!!! %f_%f_%f_%s"), dot, FMath::Acos(dot), FMath::RadiansToDegrees(FMath::Acos(dot)), *(cross.ToString()))
+	//
+	// 		
+	// 	}
+	// }
+	//
 }

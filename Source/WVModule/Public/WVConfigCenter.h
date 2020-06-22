@@ -16,11 +16,12 @@ class UAnimMontage;
 UENUM(BlueprintType)
 enum class EWVConfigName : uint8
 {
-	Locomotion	UMETA(DisplayName = "Locomotion"),		//角色的基本运动
-	Attribute	UMETA(DisplayName = "Attribute"),		//角色的属性
-	Combo		UMETA(DisplayName = "Combo"),			//角色的连招
-	Item		UMETA(DisplayName = "Item"),			//道具
-	Shop		UMETA(DisplayName = "Shop"),			//商店
+	Locomotion		UMETA(DisplayName = "Locomotion"),		//角色的基本运动
+	Attribute		UMETA(DisplayName = "Attribute"),		//角色的属性
+	Combo			UMETA(DisplayName = "Combo"),			//角色的连招
+	ComboAction		UMETA(DisplayName = "ComboAction"),		//角色每个攻击动作的配置
+	Item			UMETA(DisplayName = "Item"),			//道具
+	Shop			UMETA(DisplayName = "Shop"),			//商店
 	MAX,
 };
 
@@ -67,10 +68,19 @@ struct FWVConfig_AttributeRow : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 public:
 	FWVConfig_AttributeRow():
-	Power(100.0f)
+	Power(100.0f),
+	HP(100.0f),
+	Straight(100.0f),
+	Down(100.0f)
 	{}
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Power;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float HP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Straight;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Down;
 };
 
 /**
@@ -124,6 +134,8 @@ public:
 	TArray<FWVConfig_ComboMatchStyle> ComboMatchStyles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FWVConfig_ComboMatchData> ComboMatchDatas;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FString> ComboActionNames;
 };
 
 USTRUCT(BlueprintType)
@@ -133,6 +145,18 @@ struct FWVConfig_ComboRow : public FTableRowBase
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FString, FWVConfig_ComboInfo> ComboInfoMap;
+};
+
+/**
+ * 角色每个攻击动作配置表头
+ */
+USTRUCT(BlueprintType)
+struct FWVConfig_ComboActionRow : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FString, FWVComboActionData> ComboActionInfoMap;
 };
 
 /**

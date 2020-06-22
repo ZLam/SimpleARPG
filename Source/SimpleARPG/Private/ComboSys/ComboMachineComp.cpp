@@ -98,8 +98,15 @@ bool UComboMachineComp::Start()
 	{
 		return false;
 	}
+
+	auto ret = _Step();
+
+	if (ret && Callback_Start.IsBound())
+	{
+		Callback_Start.Broadcast();
+	}
 	
-	return _Step();
+	return ret;
 }
 
 bool UComboMachineComp::Step()
@@ -115,32 +122,39 @@ bool UComboMachineComp::Step()
 void UComboMachineComp::Resume()
 {
 	_CurNode = _EntryNode;
+
+	if (Callback_Resume.IsBound())
+	{
+		Callback_Resume.Broadcast();
+	}
 }
 
 bool UComboMachineComp::_Step()
 {
+	bool ret = false;
+	
 	AActionCharacter *tCharacter = Cast<AActionCharacter>(GetOwner());
 	if (!tCharacter)
 	{
-		return false;
+		return ret;
 	}
 
 	auto cfg_combo = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboRow>(EWVConfigName::Combo, tCharacter->GetActionCharacterName());
 	if (!cfg_combo)
 	{
-		return false;
+		return ret;
 	}
 
 	auto inputCtrl = Cast<AInputBufferController>(tCharacter->GetController());
 	if (!inputCtrl)
 	{
-		return false;
+		return ret;
 	}
 
 	auto comp_inputBuffer = inputCtrl->GetInputBufferComp();
 	if (!comp_inputBuffer)
 	{
-		return false;
+		return ret;
 	}
 
 	auto tNodes = _CurNode->GetChildren();
@@ -164,10 +178,21 @@ bool UComboMachineComp::_Step()
 
 				_CurNode = tNode;
 
+				ret = true;
+
 				break;
 			}
 		}
 	}
 
-	return true;
+	return ret;
+}
+
+UComboNode* UComboMachineComp::GetCurNode()
+{
+	if (IsRunning())
+	{
+		return _CurNode;
+	}
+	return nullptr;
 }

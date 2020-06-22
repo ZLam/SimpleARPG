@@ -2,18 +2,22 @@
 
 
 #include "Gameplay/ActionCharacter.h"
-#include "WVModule/Public/EventSys/WVEventDispatcher.h"
-#include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
-#include "WVModule/Public/Logger/WVLog.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
+#include "WVModule/Public/EventSys/WVEventDispatcher.h"
+#include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
+#include "WVModule/Public/Logger/WVLog.h"
+#include "WVModule/Public/WVBlueprintFunctionLibrary.h"
 #include "ComboSys/ComboMachineComp.h"
-#include "Engine/SkeletalMeshSocket.h"
+#include "ComboSys/ComboNode.h"
 #include "Gameplay/Equipment.h"
+#include "Gameplay/MyPlayerController.h"
 
 // Sets default values
 AActionCharacter::AActionCharacter()
@@ -21,7 +25,8 @@ AActionCharacter::AActionCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	_bReadyAtk = true;
+	_State = EWVActionCharacterState::ReadyAtk;
+	
 	_AtkRange = 1000.0f;
 	
 	_bSprinting = false;
@@ -29,14 +34,17 @@ AActionCharacter::AActionCharacter()
 	_bDodgeChangeColliderBegin = false;
 	_bDodgeChangeColliderEnd = false;
 	_bLockDodge = false;
-	
-	bShowDebug_Direction = false;
-	bShowDebug_Velocity = false;
-	bShowDebug_LastMovementInputVector = false;
+
+	_bSuperArmor = false;
+	_HurtedRotAngle = 90.0f;
 
 	_AnimMontage_Dodge = nullptr;
 
 	_Comp_ComboMachine = CreateDefaultSubobject<UComboMachineComp>(TEXT("Comp_ComboMachine"));
+
+	bShowDebug_Direction = false;
+	bShowDebug_Velocity = false;
+	bShowDebug_LastMovementInputVector = false;
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +53,7 @@ void AActionCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	auto cfg_locomotion = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_LocomotionRow>(EWVConfigName::Locomotion, _CharactorName);
-
+	
 	if (cfg_locomotion)
 	{
 		_RunSpeed = cfg_locomotion->RunSpeed;
@@ -71,10 +79,17 @@ void AActionCharacter::BeginPlay()
 	}
 
 	auto cfg_attrib = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_AttributeRow>(EWVConfigName::Attribute, _CharactorName);
+	
 	if (cfg_attrib)
 	{
 		_MaxPower = cfg_attrib->Power;
 		_CurPower = _MaxPower;
+		_MaxHP = cfg_attrib->HP;
+		_CurHP = _MaxHP;
+		_MaxStraight = cfg_attrib->Straight;
+		_CurStraight = 0.0f;
+		_MaxDown = cfg_attrib->Down;
+		_CurDown = 0.0f;
 	}
 	else
 	{
@@ -111,6 +126,14 @@ void AActionCharacter::BeginPlay()
 			WVLogW(TEXT("create equip fail, cant spawn"))
 		}
 	}
+
+	FScriptDelegate callback_comboMachine_start;
+	callback_comboMachine_start.BindUFunction(this, TEXT("Callback_ComboMachine_Start"));
+	_Comp_ComboMachine->Callback_Start.Add(callback_comboMachine_start);
+
+	FScriptDelegate callback_comboMachine_resume;
+	callback_comboMachine_resume.BindUFunction(this, TEXT("Callback_ComboMachine_Resume"));
+	_Comp_ComboMachine->Callback_Resume.Add(callback_comboMachine_resume);
 }
 
 void AActionCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -342,6 +365,197 @@ void AActionCharacter::HandleAnimNotify_DodgeChangeColliderBegin()
 void AActionCharacter::HandleAnimNotify_DodgeChangeColliderEnd()
 {
 	_bDodgeChangeColliderEnd = true;
+}
+
+float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	auto ret = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	//目前只处理内置的点攻击@TODO
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		AActionCharacter *Attacker = Cast<AActionCharacter>(EventInstigator->GetCharacter());
+
+		if (Attacker)
+		{
+			auto comboMachine = Attacker->GetComboMachineComp();
+			auto curComboNode = comboMachine->GetCurNode();
+
+			if (curComboNode)
+			{
+				auto comboActionName = curComboNode->GetComboActionName();
+
+				if (!comboActionName.IsEmpty())
+				{
+					//伤害处理
+
+					auto cfg_comboAction = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboActionRow>(EWVConfigName::ComboAction, _CharactorName);
+
+					if (cfg_comboAction)
+					{
+						auto comboActionData = cfg_comboAction->ComboActionInfoMap.Find(comboActionName);
+
+						if (comboActionData)
+						{
+							_CurHP -= comboActionData->Damage;
+
+							if (_CurHP <= 0)
+							{
+								//死亡
+
+								_CurHP = 0;
+								Die();
+							}
+							else
+							{
+								//是否霸体
+								
+								if (!_bSuperArmor)
+								{
+									//受击转向
+									
+									_HandleHurtedRot(Attacker);
+
+									auto curStraightType = comboActionData->StraightData.StraightType;
+									_CurDown += comboActionData->StraightData.AddDown;
+									_CurStraight += comboActionData->StraightData.AddStraight;
+									
+									if (_CurDown >= _MaxDown)
+									{
+										//爆Down
+										
+										if (curStraightType == EWVStraightType::Back)
+										{
+											//强制设为弹开
+											curStraightType = EWVStraightType::Bounce;
+										}
+
+										//Down状态
+										_State = EWVActionCharacterState::Down;
+									}
+									else if (_CurStraight >= _MaxStraight)
+									{
+										//爆硬直
+
+										_CurStraight = (int32)_CurStraight % (int32)_MaxStraight;
+										
+										//硬直状态
+										_State = EWVActionCharacterState::Straight;
+									}
+
+									_HandleStraight(Attacker, curStraightType, comboActionData->StraightData);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
+void AActionCharacter::_HandleHurtedRot(AActionCharacter *Attacker)
+{
+	FVector selfForward = GetActorForwardVector();
+	FVector attackerForward = Attacker->GetActorForwardVector();
+
+	float tAngle = UWVBlueprintFunctionLibrary::GetAngleBetween2Vector(selfForward, attackerForward);
+
+	if (tAngle <= (_HurtedRotAngle / 2.0f))
+	{
+		//大致背击
+
+		WVLogI(TEXT("111"))
+
+		auto toRot = attackerForward.ToOrientationRotator();
+		SetActorRotation(toRot);
+	}
+	else if (tAngle >= (180.0f - _HurtedRotAngle / 2.0f))
+	{
+		//大致正面击
+
+		WVLogI(TEXT("222"))
+
+		auto toRot = (-attackerForward).ToOrientationRotator();
+		SetActorRotation(toRot);
+	}
+	else
+	{
+		int32 nDir = UWVBlueprintFunctionLibrary::GetRelativeDirection(this, Attacker);
+		float tRotAngle = 0;
+
+		if (nDir == 3)
+		{
+			//大致侧面左击
+
+			WVLogI(TEXT("333"))
+
+			tRotAngle = -90;
+		}
+		else if (nDir == 4)
+		{
+			//大致侧面右击
+
+			WVLogI(TEXT("444"))
+
+			tRotAngle = 90;
+		}
+
+		auto tForward = UKismetMathLibrary::RotateAngleAxis(attackerForward, tRotAngle, FVector::UpVector);
+		auto toRot = tForward.ToOrientationRotator();
+		SetActorRotation(toRot);
+	}
+}
+
+void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightType curStraightType, const FWVStraightData &StraightData)
+{
+	// if (_State == EWVActionCharacterState::Straight)
+	// {
+	// 	//当前硬直状态，硬直的表现会有后退，弹开，击飞等等
+	// }
+	// else if (_State == EWVActionCharacterState::Down)
+	// {
+	// 	//当前Down状态，意在不能一直连击并拉开距离，只会有弹开，击飞等等之类的表现
+	// }
+
+	if (curStraightType == EWVStraightType::Back)
+	{
+		auto toPos = GetActorLocation() + Attacker->GetActorForwardVector() * StraightData.BackDistance;
+		SetActorLocation(toPos);
+	}
+	else if (curStraightType == EWVStraightType::Bounce)
+	{
+		auto toPos = GetActorLocation() + Attacker->GetActorForwardVector() * StraightData.BounceDistance;
+		SetActorLocation(toPos);
+	}
+	else if (curStraightType == EWVStraightType::Soar)
+	{
+		//@TODO
+	}
+}
+
+void AActionCharacter::Die()
+{
+	WVLogI(TEXT("die die die"))
+}
+
+void AActionCharacter::Callback_ComboMachine_Start()
+{
+	if (_State == EWVActionCharacterState::ReadyAtk)
+	{
+		_State = EWVActionCharacterState::Atking;
+	}
+}
+
+void AActionCharacter::Callback_ComboMachine_Resume()
+{
+	if (_State == EWVActionCharacterState::Atking)
+	{
+		_State = EWVActionCharacterState::ReadyAtk;
+	}
 }
 
 void AActionCharacter::ShowDebug_Direction()

@@ -93,6 +93,15 @@ public:
 
 	static bool _ConvEventOneParamsToStruct(FWVEventDelegateParams_One &inParams, FWVEventDelegateParams_One &outParams);
 
+	UFUNCTION(BlueprintCallable)
+	static float GetAngleBetween2Vector(FVector v1, FVector v2);
+
+	UFUNCTION(BlueprintCallable)
+	static int32 GetRelativeDirection(AActor *srcActor, AActor *dstActor);
+
+	
+	
+
 	/**
 	 * The CustomStructureParam metadata is what tells the Blueprint code generator to treat the pin as a wildcard.
 	 * The CustomThunk UFUNCTION flag prevents UHT from generating the code that glues the Blueprint to the C++ function and requires you to provider your own.

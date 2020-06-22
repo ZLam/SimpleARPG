@@ -4,11 +4,14 @@
 #include "ComboSys/ComboNode.h"
 #include "ComboSys/ComboMachineComp.h"
 #include "WVModule/Public/Logger/WVLog.h"
+#include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
+#include "Gameplay/ActionCharacter.h"
 
 UComboNode::UComboNode()
 {
 	_ComboName = TEXT("");
 	_ComboIndex = -1;
+	_Priority = 0;
 }
 
 void UComboNode::InitData(const TArray<FKey> &InMatchKeys, const FString &InComboName, const int32 &InComboIndex, const int32 &InPriority)
@@ -78,6 +81,27 @@ AActor* UComboNode::GetOwner()
 	return nullptr;
 }
 
+FString UComboNode::GetComboActionName()
+{
+	auto actionCharacter = Cast<AActionCharacter>(GetOwner());
+	if (actionCharacter)
+	{
+		auto cfg = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboRow>(EWVConfigName::Combo, actionCharacter->GetActionCharacterName());
+		if (cfg)
+		{
+			auto tComboInfo = cfg->ComboInfoMap.Find(_ComboName);
+			if (tComboInfo)
+			{
+				if (_ComboIndex >= 0 && _ComboIndex < tComboInfo->ComboActionNames.Num())
+				{
+					return tComboInfo->ComboActionNames[_ComboIndex];
+				}
+			}
+		}
+	}
+	return FString();
+}
+
 bool UComboNode::Condition_Implementation()
 {
 	return true;
@@ -85,13 +109,13 @@ bool UComboNode::Condition_Implementation()
 
 void UComboNode::Do_Implementation()
 {
-	FString str = FString::Printf(TEXT("%s_%d_"), *_ComboName, _ComboIndex);
-	for (auto elem : _MatchKeysMap)
-	{
-		if (elem.Value)
-		{
-			str += elem.Key.GetFName().ToString();
-		}
-	}
-	WVLogI(TEXT("%s"), *str)
+	// FString str = FString::Printf(TEXT("%s_%d_"), *_ComboName, _ComboIndex);
+	// for (auto elem : _MatchKeysMap)
+	// {
+	// 	if (elem.Value)
+	// 	{
+	// 		str += elem.Key.GetFName().ToString();
+	// 	}
+	// }
+	// WVLogI(TEXT("%s"), *str)
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "WVModule/Public/WVGameTypes.h"
 #include "ActionCharacter.generated.h"
 
 class UAnimMontage;
@@ -40,9 +41,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE FName GetActionCharacterName() { return _CharactorName; }
-	
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE bool IsReadyAtk() { return _bReadyAtk; }
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetRunSpeed() { return _RunSpeed; }
@@ -100,12 +98,17 @@ public:
 	void SetLockDodge(bool val) { _bLockDodge = val; }
 
 	UFUNCTION(BlueprintPure)
+	EWVActionCharacterState GetState() { return _State; }
+
+	UFUNCTION(BlueprintPure)
 	AEquipment* GetEquipment(const FName &InEquipName) { return _EquipMap.FindRef(InEquipName); }
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere)
-	bool _bReadyAtk;
-
+	EWVActionCharacterState _State;
+	
 	UPROPERTY(VisibleAnywhere)
 	float _AtkRange;
 
@@ -148,8 +151,47 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool _bLockDodge;
 
+	UPROPERTY(VisibleAnywhere)
+	float _MaxHP;
+
+	UPROPERTY(VisibleAnywhere)
+	float _CurHP;
+
+	UPROPERTY(VisibleAnywhere)
+	float _MaxStraight;
+
+	UPROPERTY(VisibleAnywhere)
+	float _CurStraight;
+
+	UPROPERTY(VisibleAnywhere)
+	float _MaxDown;
+
+	UPROPERTY(VisibleAnywhere)
+	float _CurDown;
+
+	UPROPERTY(VisibleAnywhere)
+	bool _bSuperArmor;
+
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Dodge;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Straight_Back_F;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Straight_Back_B;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Straight_Back_L;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Straight_Back_R;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Straight_Bounce_F;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Straight_Bounce_B;
 
 	UPROPERTY(EditAnywhere)
 	UComboMachineComp *_Comp_ComboMachine;
@@ -160,11 +202,32 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TMap<FName, AEquipment*> _EquipMap;
 
+	UPROPERTY()
+	float _HurtedRotAngle;
+
 	bool _bDodgeChangeColliderBegin;
 
 	bool _bDodgeChangeColliderEnd;
 
 	FTimerHandle _Timer_RecoverPower;
+
+	/**
+	 * OutDir : 1（大致背击），2（大致正面击），3（大致侧面左击），4（大致侧面右击）
+	 */
+	UFUNCTION()
+	void _HandleHurtedRot(AActionCharacter *Attacker);
+
+	UFUNCTION()
+	void _HandleStraight(AActionCharacter *Attacker, EWVStraightType curStraightType, const FWVStraightData &StraightData);
+
+	UFUNCTION()
+	void Die();
+
+	UFUNCTION()
+	void Callback_ComboMachine_Start();
+
+	UFUNCTION()
+	void Callback_ComboMachine_Resume();
 
 	void ShowDebug_Direction();
 

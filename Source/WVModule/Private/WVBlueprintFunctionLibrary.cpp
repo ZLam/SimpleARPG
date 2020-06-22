@@ -108,6 +108,54 @@ void UWVBlueprintFunctionLibrary::_FireEvent_OneParams_SP(EWVEventCategory inCat
 	UWVEventDispatcher::GetInstance()->FireEvent_BP(eventSignature, params);
 }
 
+float UWVBlueprintFunctionLibrary::GetAngleBetween2Vector(FVector v1, FVector v2)
+{
+	v1.Z = 0.0f;
+	v2.Z = 0.0f;
+	float dotVal = FVector::DotProduct(v1, v2);
+	return FMath::RadiansToDegrees(FMath::Acos(dotVal));
+}
+
+/**
+ * 0（重叠），1（在前面），2（在后面），3（在左边），4（在右边）
+ */
+int32 UWVBlueprintFunctionLibrary::GetRelativeDirection(AActor* srcActor, AActor* dstActor)
+{
+	FVector scrPos = srcActor->GetActorLocation();
+	FVector dstPos = dstActor->GetActorLocation();
+
+	scrPos.Z = 0.0f;
+	dstPos.Z = 0.0f;
+	
+	if (scrPos.Equals(dstPos))
+	{
+		return 0;
+	}
+	
+	FVector tRelativeDirection = dstPos - scrPos;
+	float tDotVal = FVector::DotProduct(srcActor->GetActorForwardVector(), tRelativeDirection);
+
+	if (FMath::IsNearlyEqual(tDotVal, 1.0f))
+	{
+		return 1;
+	}
+	if (FMath::IsNearlyEqual(tDotVal, -1.0f))
+	{
+		return 2;
+	}
+
+	FVector tNormal = FVector::CrossProduct(srcActor->GetActorForwardVector(), tRelativeDirection).GetSafeNormal();
+
+	if (tNormal.Z < 0)
+	{
+		return 3;
+	}
+	else
+	{
+		return 4;
+	}
+}
+
 bool UWVBlueprintFunctionLibrary::ConvEventOneParamsToBool(const FWVEventDelegateParams_One& delegateParams, bool& out)
 {
 	bool ret = false;

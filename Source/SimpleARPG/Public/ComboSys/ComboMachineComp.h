@@ -8,6 +8,8 @@
 
 class UComboNode;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCallback_ComboMachine);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEARPG_API UComboMachineComp : public UActorComponent
 {
@@ -29,7 +31,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Resume();
 
+	UFUNCTION(BlueprintPure)
+	UComboNode* GetCurNode();
+
 	bool _Step();
+
+	FCallback_ComboMachine Callback_Start;
+	
+	FCallback_ComboMachine Callback_Resume;
 
 protected:
 	UPROPERTY(VisibleAnywhere)

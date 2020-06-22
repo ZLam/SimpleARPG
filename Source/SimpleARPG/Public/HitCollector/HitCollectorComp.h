@@ -54,7 +54,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Disable();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	ACharacter* GetOwnerCharacter();
 
 protected:
@@ -80,6 +80,7 @@ protected:
 	FCollisionQueryParams _CollisionQueryParams;
 	
 	TMap<UShapeComponent*, TSharedPtr<FHitOnceInfo>> _HitOnceMap;
+	// TMap<UShapeComponent*, FHitOnceInfo> _HitOnceMap;		//甘样唔得的，用果时Empty唔到。具体要睇睇源码先知了
 
 	UFUNCTION()
 	void HandleHit();
