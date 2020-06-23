@@ -103,6 +103,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	AEquipment* GetEquipment(const FName &InEquipName) { return _EquipMap.FindRef(InEquipName); }
 
+	UFUNCTION(BlueprintCallable)
+	void ResumeStraight();
+
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
@@ -202,6 +205,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TMap<FName, AEquipment*> _EquipMap;
 
+	UPROPERTY(EditDefaultsOnly)
+	float _DownResumeTime;
+
 	UPROPERTY()
 	float _HurtedRotAngle;
 
@@ -211,12 +217,16 @@ protected:
 
 	FTimerHandle _Timer_RecoverPower;
 
-	/**
-	 * OutDir : 1（大致背击），2（大致正面击），3（大致侧面左击），4（大致侧面右击）
-	 */
-	UFUNCTION()
-	void _HandleHurtedRot(AActionCharacter *Attacker);
+	FTimerHandle _Timer_ResumeDown;
 
+	TSharedPtr<FRotator> _ToHurtedRot;
+
+	TSharedPtr<FVector> _ToHurtedOffset;
+
+	/**
+	 * 硬直状态，硬直的表现会有后退，弹开，击飞等等
+	 * Down状态（特殊的硬直），意在不能一直连击并拉开距离，只会有弹开，击飞等等之类的表现
+	 */
 	UFUNCTION()
 	void _HandleStraight(AActionCharacter *Attacker, EWVStraightType curStraightType, const FWVStraightData &StraightData);
 

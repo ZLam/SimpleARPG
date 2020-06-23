@@ -37,8 +37,15 @@ AActionCharacter::AActionCharacter()
 
 	_bSuperArmor = false;
 	_HurtedRotAngle = 90.0f;
+	_DownResumeTime = 1.0f;
 
 	_AnimMontage_Dodge = nullptr;
+	_AnimMontage_Straight_Back_F = nullptr;
+	_AnimMontage_Straight_Back_B = nullptr;
+	_AnimMontage_Straight_Back_L = nullptr;
+	_AnimMontage_Straight_Back_R = nullptr;
+	_AnimMontage_Straight_Bounce_F = nullptr;
+	_AnimMontage_Straight_Bounce_B = nullptr;
 
 	_Comp_ComboMachine = CreateDefaultSubobject<UComboMachineComp>(TEXT("Comp_ComboMachine"));
 
@@ -213,6 +220,28 @@ void AActionCharacter::Tick(float DeltaTime)
 		}
 	}
 
+	//应该要做个Tween 或者 像Cocos2dx的Action 之类的插件来做补间动画的功能。之后要看下！商城有插件，开源也有一个叫iTween UE4的
+
+	if (_ToHurtedRot.IsValid())
+	{
+		auto nextRot = FMath::RInterpTo(GetActorRotation(), *_ToHurtedRot, DeltaTime, 20);
+		SetActorRotation(nextRot);
+		if (nextRot == *_ToHurtedRot)
+		{
+			_ToHurtedRot.Reset();
+		}
+	}
+
+	if (_ToHurtedOffset.IsValid())
+	{
+		auto nextPos = FMath::VInterpTo(GetActorLocation(), *_ToHurtedOffset, DeltaTime, 10);
+		SetActorLocation(nextPos);
+		if (nextPos == *_ToHurtedOffset)
+		{
+			_ToHurtedOffset.Reset();
+		}
+	}
+
 	ShowDebug_Direction();
 	ShowDebug_Velocity();
 	ShowDebug_LastMovementInputVector();
@@ -367,10 +396,46 @@ void AActionCharacter::HandleAnimNotify_DodgeChangeColliderEnd()
 	_bDodgeChangeColliderEnd = true;
 }
 
+void AActionCharacter::ResumeStraight()
+{
+	if (_State == EWVActionCharacterState::Straight)
+	{
+		_State = EWVActionCharacterState::ReadyAtk;
+	}
+	else if (_State == EWVActionCharacterState::Down)
+	{
+		if (_DownResumeTime <= 0)
+		{
+			_State = EWVActionCharacterState::ReadyAtk;
+		}
+		else
+		{
+			auto &timerMgr = GetWorldTimerManager();
+			timerMgr.ClearTimer(_Timer_ResumeDown);
+			FTimerDelegate callback;
+			callback.BindLambda(
+				[this]()
+				{
+					_CurDown = 0;
+					_State = EWVActionCharacterState::ReadyAtk;
+					GetWorldTimerManager().ClearTimer(_Timer_ResumeDown);
+				}
+			);
+			timerMgr.SetTimer(_Timer_ResumeDown, callback, _DownResumeTime, false);
+		}
+	}
+}
+
 float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	AActor* DamageCauser)
+                                   AActor* DamageCauser)
 {
 	auto ret = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	//Down 无敌
+	if (_State == EWVActionCharacterState::Down)
+	{
+		return ret;
+	}
 
 	//目前只处理内置的点攻击@TODO
 	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
@@ -410,20 +475,15 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 							else
 							{
 								//是否霸体
-								
 								if (!_bSuperArmor)
 								{
-									//受击转向
-									
-									_HandleHurtedRot(Attacker);
-
 									auto curStraightType = comboActionData->StraightData.StraightType;
 									_CurDown += comboActionData->StraightData.AddDown;
 									_CurStraight += comboActionData->StraightData.AddStraight;
 									
 									if (_CurDown >= _MaxDown)
 									{
-										//爆Down
+										//爆Down		特殊的硬直表现
 										
 										if (curStraightType == EWVStraightType::Back)
 										{
@@ -444,7 +504,11 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 										_State = EWVActionCharacterState::Straight;
 									}
 
-									_HandleStraight(Attacker, curStraightType, comboActionData->StraightData);
+									//处理硬直逻辑
+									if (_State == EWVActionCharacterState::Straight || _State == EWVActionCharacterState::Down)
+									{
+										_HandleStraight(Attacker, curStraightType, comboActionData->StraightData);
+									}
 								}
 							}
 						}
@@ -457,30 +521,25 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	return ret;
 }
 
-void AActionCharacter::_HandleHurtedRot(AActionCharacter *Attacker)
-{
+void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightType curStraightType, const FWVStraightData &StraightData)
+{	
 	FVector selfForward = GetActorForwardVector();
 	FVector attackerForward = Attacker->GetActorForwardVector();
-
 	float tAngle = UWVBlueprintFunctionLibrary::GetAngleBetween2Vector(selfForward, attackerForward);
+	int32 roughlyDir = 0;		//1（大致背击），2（大致正面击），3（大致侧面左击），4（大致侧面右击）
 
+	//受击转向
 	if (tAngle <= (_HurtedRotAngle / 2.0f))
 	{
 		//大致背击
-
-		WVLogI(TEXT("111"))
-
-		auto toRot = attackerForward.ToOrientationRotator();
-		SetActorRotation(toRot);
+		_ToHurtedRot = MakeShareable(new FRotator(attackerForward.ToOrientationRotator()));
+		roughlyDir = 1;
 	}
 	else if (tAngle >= (180.0f - _HurtedRotAngle / 2.0f))
 	{
 		//大致正面击
-
-		WVLogI(TEXT("222"))
-
-		auto toRot = (-attackerForward).ToOrientationRotator();
-		SetActorRotation(toRot);
+		_ToHurtedRot = MakeShareable(new FRotator((-attackerForward).ToOrientationRotator()));
+		roughlyDir = 2;
 	}
 	else
 	{
@@ -491,49 +550,134 @@ void AActionCharacter::_HandleHurtedRot(AActionCharacter *Attacker)
 		{
 			//大致侧面左击
 
-			WVLogI(TEXT("333"))
-
-			tRotAngle = -90;
+			if (curStraightType == EWVStraightType::Bounce)
+			{
+				//弹开的话，转回朝向attacker
+				tRotAngle = -180;
+			}
+			else
+			{
+				tRotAngle = -90;
+			}
+			roughlyDir = 3;
 		}
 		else if (nDir == 4)
 		{
 			//大致侧面右击
 
-			WVLogI(TEXT("444"))
-
-			tRotAngle = 90;
+			if (curStraightType == EWVStraightType::Bounce)
+			{
+				//弹开的话，转回朝向attacker
+				tRotAngle = 180;
+			}
+			else
+			{
+				tRotAngle = 90;
+			}
+			roughlyDir = 4;
 		}
 
 		auto tForward = UKismetMathLibrary::RotateAngleAxis(attackerForward, tRotAngle, FVector::UpVector);
 		auto toRot = tForward.ToOrientationRotator();
-		SetActorRotation(toRot);
+
+		_ToHurtedRot = MakeShareable(new FRotator(toRot));
 	}
-}
 
-void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightType curStraightType, const FWVStraightData &StraightData)
-{
-	// if (_State == EWVActionCharacterState::Straight)
-	// {
-	// 	//当前硬直状态，硬直的表现会有后退，弹开，击飞等等
-	// }
-	// else if (_State == EWVActionCharacterState::Down)
-	// {
-	// 	//当前Down状态，意在不能一直连击并拉开距离，只会有弹开，击飞等等之类的表现
-	// }
-
+	//受击位移
 	if (curStraightType == EWVStraightType::Back)
 	{
 		auto toPos = GetActorLocation() + Attacker->GetActorForwardVector() * StraightData.BackDistance;
-		SetActorLocation(toPos);
+		_ToHurtedOffset = MakeShareable(new FVector(toPos));
 	}
 	else if (curStraightType == EWVStraightType::Bounce)
 	{
 		auto toPos = GetActorLocation() + Attacker->GetActorForwardVector() * StraightData.BounceDistance;
-		SetActorLocation(toPos);
+		_ToHurtedOffset = MakeShareable(new FVector(toPos));
 	}
 	else if (curStraightType == EWVStraightType::Soar)
 	{
 		//@TODO
+	}
+
+	//硬直表现
+	auto aniIns = GetMesh()->GetAnimInstance();
+	if (aniIns)
+	{
+		switch (roughlyDir)
+		{
+			case 1:
+			{
+				if (curStraightType == EWVStraightType::Back)
+				{
+					if (_AnimMontage_Straight_Back_B)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Back_B);
+					}
+				}
+				else if (curStraightType == EWVStraightType::Bounce)
+				{
+					if (_AnimMontage_Straight_Bounce_B)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_B);
+					}
+				}
+				break;
+			}
+			case 2:
+			{
+				if (curStraightType == EWVStraightType::Back)
+				{
+					if (_AnimMontage_Straight_Back_F)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Back_F);
+					}
+				}
+				else if (curStraightType == EWVStraightType::Bounce)
+				{
+					if (_AnimMontage_Straight_Bounce_F)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_F);
+					}
+				}
+				break;
+			}
+			case 3:
+			{
+				if (curStraightType == EWVStraightType::Back)
+				{
+					if (_AnimMontage_Straight_Back_L)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Back_L);
+					}
+				}
+				else if (curStraightType == EWVStraightType::Bounce)
+				{
+					if (_AnimMontage_Straight_Bounce_F)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_F);
+					}
+				}
+				break;
+			}
+			case 4:
+			{
+				if (curStraightType == EWVStraightType::Back)
+				{
+					if (_AnimMontage_Straight_Back_R)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Back_R);
+					}
+				}
+				else if (curStraightType == EWVStraightType::Bounce)
+				{
+					if (_AnimMontage_Straight_Bounce_F)
+					{
+						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_F);
+					}
+				}
+				break;
+			}
+		}
 	}
 }
 

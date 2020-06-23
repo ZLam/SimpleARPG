@@ -82,6 +82,15 @@ void APlayerCharacter::LockTarget_Callback_Distance(float dist)
 		{
 			targetPoint->Show(ETargetPointType::Green);
 		}
+
+		if (_Index_Target >= 0 && _Index_Target <= _Targets.Num())
+		{
+			auto tTarget = Cast<AActionCharacter>(_Targets[_Index_Target]);
+			if (tTarget && tTarget->GetState() == EWVActionCharacterState::Down)
+			{
+				targetPoint->Show(ETargetPointType::Yellow);
+			}
+		}
 	}
 
 	//
