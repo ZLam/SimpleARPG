@@ -77,6 +77,8 @@ void UTestUserWidget::Btn_Test1_Callback()
 	 *	A *c = new C; 那么c->GetClass() 应该是 C的类型信息 而不会是 A的类型信息
 	 *	X::StaticClass(); X是什么就是什么的类型信息
 	 *
+	 *	看源码NewObject接口，创建obj时，内部InClass就是传入T::StaticClass()，所以GetClass()就是该对象本身是什么类型就会返回什么类型信息
+	 *
 		//TestActor的c++版本拖进level
 		//StaticClass() == GetClass()
 		//StaticClass()->GetDefaultObject() == GetClass()->GetDefaultObject()

@@ -5,12 +5,30 @@
 #include "WVModule/Public/Logger/WVLog.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
 
-void UModel_Player::OnEnter()
+UModel_Player::UModel_Player()
 {
-	UWVEventDispatcher::GetInstance()->AddListener(TEXT("ModelPlayer_Test"), this, TEXT("Rec_Test"));
+	_MoneyNum = 0;
 }
 
-void UModel_Player::Rec_Test()
+void UModel_Player::OnEnter()
 {
-	WVLogI(TEXT("UModel_Player::Rec_Test"))
+	Super::OnEnter();
+}
+
+int32 UModel_Player::GetMoney()
+{
+	return _MoneyNum;
+}
+
+void UModel_Player::SetMoney(int32 num, bool bFireEvent)
+{
+	if (num < 0)
+	{
+		num = 0;
+	}
+	_MoneyNum = num;
+	if (bFireEvent)
+	{
+		UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::MoneyChange);
+	}
 }

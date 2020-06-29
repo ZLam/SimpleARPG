@@ -49,7 +49,8 @@ void UWVConfigUtil::Init()
 	_pathMap.Emplace(EWVConfigName::Combo, TEXT("DataTable'/Game/ConfigData/DataTable_Combo.DataTable_Combo'"));
 	_pathMap.Emplace(EWVConfigName::ComboAction, TEXT("DataTable'/Game/ConfigData/DataTable_ComboAction.DataTable_ComboAction'"));
 	_pathMap.Emplace(EWVConfigName::Item, TEXT("DataTable'/Game/ConfigData/DataTable_Item.DataTable_Item'"));
-	// _pathMap.Emplace(EWVConfigName::Shop, TEXT(""));
+	_pathMap.Emplace(EWVConfigName::Shop, TEXT("DataTable'/Game/ConfigData/DataTable_Shop.DataTable_Shop'"));
+	_pathMap.Emplace(EWVConfigName::ShopGood, TEXT("DataTable'/Game/ConfigData/DataTable_ShopGoods.DataTable_ShopGoods'"));
 }
 
 UDataTable* UWVConfigUtil::GetConfig(EWVConfigName configName)

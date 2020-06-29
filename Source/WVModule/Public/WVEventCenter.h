@@ -27,15 +27,26 @@ enum class EWVEventName : uint8
 {
 	Begin							UMETA(DisplayName = "None"),
 
-	//
+	//Normal Inner Event Begin
 	PlayerPowerChange				UMETA(DisplayName = "PlayerPowerChange"),
 	PlayerHPChange					UMETA(DisplayName = "PlayerHPChange"),
-	//
+	MoneyChange						UMETA(DisplayName = "MoneyChange"),
+	//Normal Inner Event End
 
-	//for create view begin
+	//Create View Event Begin
 	CreateLoginView					UMETA(DisplayName = "CreateLoginView"),
 	CreateMainView					UMETA(DisplayName = "CreateMainView"),
-	//for create view end
+	CreateShopView					UMETA(DisplayName = "CreateShopView"),
+	CreateMakeSureDialog			UMETA(DisplayName = "CreateMakeSureDialog"),
+	CreateConfirmDialog				UMETA(DisplayName = "CreateConfirmDialog"),
+	CreateChooseNumDialog			UMETA(DisplayName = "CreateChooseNumDialog"),
+	CreateItemView					UMETA(DisplayName = "CreateItemView"),
+	//Create View Event End
+
+
+
+
+
 	
 	//for test begin
 	TestActor						UMETA(DisplayName = "TestActor"),

@@ -36,6 +36,15 @@ protected:
 	UPROPERTY()
 	UWVViewBase* _mainView;
 
+	UPROPERTY()
+	TArray<UWVViewBase*> _funcViewArr;
+
+	UPROPERTY()
+	TArray<UWVViewBase*> _dialogArr;
+	
+	template<typename T>
+	T* _AddView(EWVViewZOrder whatZOrder, const TCHAR *widgetBP_Path);
+
 public:
 	static UWVViewMgr* GetInstance();
 	void Cleanup();
@@ -48,7 +57,21 @@ public:
 	void SwitchMainView(UWVViewBase* view);
 
 	template<typename T>
-	void SwitchMainView(const TCHAR *widgetBP_Path);
+	T* SwitchMainView(const TCHAR *widgetBP_Path);
+
+	void PushFuncView(UWVViewBase *view);
+
+	template<typename T>
+	T* PushFuncView(const TCHAR *widgetBP_Path);
+
+	void PopFuncView(UWVViewBase *view = nullptr);
+
+	void PushDialog(UWVViewBase *view);
+
+	template<typename T>
+	T* PushDialog(const TCHAR *widgetBP_Path);
+
+	void PopDialog(UWVViewBase *view = nullptr);
 
 protected:
 	UWVViewMgr();
@@ -56,13 +79,15 @@ protected:
 };
 
 template <typename T>
-void UWVViewMgr::SwitchMainView(const TCHAR *widgetBP_Path)
+T* UWVViewMgr::_AddView(EWVViewZOrder whatZOrder, const TCHAR* widgetBP_Path)
 {
+	T *ret = nullptr;
 	auto cls = LoadClass<T>(nullptr, widgetBP_Path);
-	
+
 	if (!cls)
 	{
 		WVLogW(TEXT("load class'%s' fail"), widgetBP_Path)
+		return ret;
 	}
 
 	auto w = _gameIns->GetWorld();
@@ -71,11 +96,51 @@ void UWVViewMgr::SwitchMainView(const TCHAR *widgetBP_Path)
 		auto view = CreateWidget<T>(w, cls);
 		if (view)
 		{
-			SwitchMainView(view);
+			switch (whatZOrder)
+			{
+				case EWVViewZOrder::MainView:
+				{
+					SwitchMainView(view);
+					break;
+				}
+				case EWVViewZOrder::FuncView:
+				{
+					PushFuncView(view);
+					break;
+				}
+				case EWVViewZOrder::Dialog:
+				{
+					PushDialog(view);
+					break;;
+				}
+			}
+
+			ret = view;
 		}
 		else
 		{
 			WVLogW(TEXT("create view'%s' fail"), widgetBP_Path)
+			return ret;
 		}
 	}
+
+	return ret;
+}
+
+template <typename T>
+T* UWVViewMgr::SwitchMainView(const TCHAR *widgetBP_Path)
+{
+	return _AddView<T>(EWVViewZOrder::MainView, widgetBP_Path);
+}
+
+template <typename T>
+T* UWVViewMgr::PushFuncView(const TCHAR* widgetBP_Path)
+{
+	return _AddView<T>(EWVViewZOrder::FuncView, widgetBP_Path);
+}
+
+template <typename T>
+T* UWVViewMgr::PushDialog(const TCHAR* widgetBP_Path)
+{
+	return _AddView<T>(EWVViewZOrder::Dialog, widgetBP_Path);
 }

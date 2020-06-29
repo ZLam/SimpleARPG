@@ -4,13 +4,15 @@
 #include "View/Item/ItemCreator.h"
 #include "WVModule/Public/Logger/WVLog.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
+#include "WVModule/Public/View/WVViewMgr.h"
+#include "View/Item/ItemView.h"
 
 void UItemCreator::OnEnter()
 {
-	UWVEventDispatcher::GetInstance()->AddListener(TEXT("ItemCreator_Test"), this, TEXT("Rec_Test"));
+	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateItemView, this, TEXT("Rec_OnCreateItemView"));
 }
 
-void UItemCreator::Rec_Test()
+void UItemCreator::Rec_OnCreateItemView()
 {
-	WVLogI(TEXT("UItemCreator::Rec_Test"))
+	UWVViewMgr::GetInstance()->PushFuncView<UItemView>(TEXT("WidgetBlueprint'/Game/View/Item/WidgetBP_ItemView.WidgetBP_ItemView_C'"));
 }

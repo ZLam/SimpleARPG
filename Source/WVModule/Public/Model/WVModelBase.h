@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType)
 class WVMODULE_API UWVModelBase : public UObject
 {
 	GENERATED_BODY()

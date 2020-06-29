@@ -195,6 +195,6 @@ void UInputBufferComp::PrintLog()
 			elem.Value.StartTime,
 			elem.Value.LastTime
 		);
-		WVLogI(*str)
+		WVLogI(TEXT("%s"), *str)
 	}
 }

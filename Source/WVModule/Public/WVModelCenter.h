@@ -7,4 +7,5 @@ UENUM(BlueprintType)
 enum class EWVModelName : uint8
 {
 	Player			UMETA(DisplayName = "Model_Player"),
+	Item			UMETA(DisplayName = "Model_Item"),
 };

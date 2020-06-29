@@ -10,7 +10,10 @@
 enum class EWVConfigName : uint8;
 enum class EWVEventCategory : uint8;
 enum class EWVEventName : uint8;
+enum class EWVModelName : uint8;
 class UDataTable;
+class UWVViewBase;
+class UWVModelBase;
 
 /**
  * 
@@ -21,12 +24,10 @@ class WVMODULE_API UWVBlueprintFunctionLibrary : public UBlueprintFunctionLibrar
 	GENERATED_BODY()
 
 public:
-
-	/**
-	 * 把参数的UProperty取出来
-	 */
-	static void FuncParamsOfProperties(UFunction *inFunc, TArray<UProperty*> &outArr);
-
+	//
+	//Log Begin
+	//
+	
 	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "1"))
 	static void LogI(const FString &strLog, bool bPrintToLog = true, bool bPrintToScreen = true, float duration = 10);
 
@@ -39,9 +40,25 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "1"))
 	static void LogE(const FString &strLog, bool bPrintToLog = true, bool bPrintToScreen = true, float duration = 10);
 
+	//
+	//Log End
+	//
+
+	//
+	//Config Begin
+	//
+	
 	UFUNCTION(BlueprintCallable)
 	static UDataTable* GetConfig(EWVConfigName configName);
 
+	//
+	//Config End
+	//
+
+	//
+	//Event Begin
+	//
+	
 	UFUNCTION(BlueprintPure)
 	static FString ConvToEventSignature(EWVEventCategory inCategory, EWVEventName inEventName);
 
@@ -93,13 +110,65 @@ public:
 
 	static bool _ConvEventOneParamsToStruct(FWVEventDelegateParams_One &inParams, FWVEventDelegateParams_One &outParams);
 
+	//
+	//Event End
+	//
+
+	//
+	//View Begin
+	//
+
+	UFUNCTION(BlueprintCallable)
+	static void PopFuncView(UWVViewBase *view = nullptr);
+
+	UFUNCTION(BlueprintCallable)
+	static void PopDialog(UWVViewBase *view = nullptr);
+	
+	//
+	//View End
+	//
+
+	//
+	//Model Begin
+	//
+
+	UFUNCTION(BlueprintCallable)
+	static UWVModelBase* GetModel(EWVModelName InModelName);
+	
+	//
+	//Model End
+	//
+	
+	//
+	//Common Begin
+	//
+
+	/**
+	 * 把参数的UProperty取出来
+	 */
+	static void FuncParamsOfProperties(UFunction *inFunc, TArray<UProperty*> &outArr);
+
 	UFUNCTION(BlueprintCallable)
 	static float GetAngleBetween2Vector(FVector v1, FVector v2);
 
 	UFUNCTION(BlueprintCallable)
 	static int32 GetRelativeDirection(AActor *srcActor, AActor *dstActor);
 
-	
+	//
+	//Common End
+	//
+
+
+
+
+
+
+
+
+
+
+
+
 	
 
 	/**

@@ -22,6 +22,7 @@ enum class EWVConfigName : uint8
 	ComboAction		UMETA(DisplayName = "ComboAction"),		//角色每个攻击动作的配置
 	Item			UMETA(DisplayName = "Item"),			//道具
 	Shop			UMETA(DisplayName = "Shop"),			//商店
+	ShopGood		UMETA(DisplayName = "ShopGood"),		//商店商品
 	MAX,
 };
 
@@ -170,10 +171,8 @@ struct FWVConfig_ItemRow : public FTableRowBase
 public:
 	FWVConfig_ItemRow():
 	id(0),
-	type(EWVItemType::Money),
+	type(EWVItemType::Importantce),
 	quality(EWVQualityType::White),
-	name(TEXT("")),
-	desc(TEXT("")),
 	icon(nullptr)
 	{}
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -183,9 +182,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EWVQualityType quality;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString name;
+	FText name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString desc;
+	FText desc;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> icon;
 };
@@ -197,13 +196,9 @@ USTRUCT(BlueprintType)
 struct FWVConfig_ShopRow : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
-
-public:
-	FWVConfig_ShopRow():
-	idArr()
-	{}
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<int32> idArr;
+	TArray<FName> idArr;
 };
 
 /**
@@ -213,14 +208,9 @@ USTRUCT(BlueprintType)
 struct FWVConfig_ShopGoodsRow : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
-
-public:
-	FWVConfig_ShopGoodsRow():
-	itemId(0),
-	costId(0)
-	{}
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 itemId;
+	FWVGameResData ItemData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 costId;
+	FWVGameResData costData;
 };

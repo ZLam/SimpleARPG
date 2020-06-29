@@ -15,8 +15,17 @@ class SIMPLEARPG_API UModel_Player : public UWVModelBase
 	GENERATED_BODY()
 
 public:
-	virtual void OnEnter() override;
+	UFUNCTION(BlueprintCallable)
+	int32 GetMoney();
 
-	UFUNCTION()
-	void Rec_Test();
+	UFUNCTION(BlueprintCallable)
+	void SetMoney(int32 num, bool bFireEvent = true);
+	
+protected:
+	int32 _MoneyNum;
+
+public:
+	UModel_Player();
+
+	virtual void OnEnter() override;
 };

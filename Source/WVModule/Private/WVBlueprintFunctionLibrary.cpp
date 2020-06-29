@@ -5,6 +5,8 @@
 #include "Logger/WVLog.h"
 #include "ConfigUtil/WVConfigUtil.h"
 #include "EventSys/WVEventDispatcher.h"
+#include "View/WVViewMgr.h"
+#include "Model/WVModelMgr.h"
 
 void UWVBlueprintFunctionLibrary::FuncParamsOfProperties(UFunction* inFunc, TArray<UProperty*> &outArr)
 {
@@ -371,4 +373,19 @@ bool UWVBlueprintFunctionLibrary::_ConvEventOneParamsToStruct(FWVEventDelegatePa
 		WVLogW(TEXT("delegateParams invalid"))
 	}
 	return ret;
+}
+
+void UWVBlueprintFunctionLibrary::PopFuncView(UWVViewBase* view)
+{
+	UWVViewMgr::GetInstance()->PopFuncView(view);
+}
+
+void UWVBlueprintFunctionLibrary::PopDialog(UWVViewBase* view)
+{
+	UWVViewMgr::GetInstance()->PopDialog(view);
+}
+
+UWVModelBase* UWVBlueprintFunctionLibrary::GetModel(EWVModelName InModelName)
+{
+	return UWVModelMgr::GetInstance()->GetModel(InModelName);
 }

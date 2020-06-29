@@ -4,13 +4,45 @@
 #include "WVGameTypes.generated.h"
 
 /**
+ * gameplay 回调，无参数
+ */
+DECLARE_DYNAMIC_DELEGATE(FWVCallback_Null);
+
+/**
+ * gameplay 回调，单个bool参数
+ */
+DECLARE_DYNAMIC_DELEGATE_OneParam(FWVCallback_Bool, bool, bVal);
+
+/**
+ * gameplay 回调，单个int32参数
+ */
+DECLARE_DYNAMIC_DELEGATE_OneParam(FWVCallback_Int32, int32, num);
+
+/**
+ * gameplay 回调，单个int32参数
+ */
+DECLARE_DYNAMIC_DELEGATE_OneParam(FWVCallback_Float, float, num);
+
+/**
+ * gameplay 玩法里的资源类型枚举
+ */
+UENUM(BlueprintType)
+enum class EWVGameResType : uint8
+{
+	Money		UMETA(DisplayName = "Money"),	//货币
+	Item		UMETA(DisplayName = "Item"),	//道具
+	MAX,
+};
+
+/**
  * gameplay 道具类型枚举
  */
 UENUM(BlueprintType)
 enum class EWVItemType : uint8
 {
-	Money		UMETA(DisplayName = "Money"),	//货币
-	Item		UMETA(DisplayName = "Item"),	//道具
+	Food			UMETA(DisplayName = "Food"),			//食物
+	Medicine		UMETA(DisplayName = "Medicine"),		//药物
+	Importantce		UMETA(DisplayName = "Importantce"),		//重要的东西
 	MAX,
 };
 
@@ -126,4 +158,76 @@ enum class EWVActionCharacterState : uint8
 	Straight		UMETA(DisplayName = "Straight"),	//硬直状态
 	Down			UMETA(DisplayName = "Down"),		//Down状态
 	Die				UMETA(DisplayName = "Die"),			//死亡
+};
+
+/**
+ * gameplay 玩法里的资源数据
+ */
+USTRUCT(BlueprintType)
+struct FWVGameResData
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	FWVGameResData() = default;
+
+	FWVGameResData(EWVGameResType InGameResType, int32 InId = 0, int32 InNum = 0):
+	GameResType(InGameResType),
+	Id(InId),
+	Num(InNum)
+	{}
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EWVGameResType GameResType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Id;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Num;
+};
+
+/**
+ * gameplay 创建MakeSureDialog传递的参数
+ */
+USTRUCT(BlueprintType)
+struct FWVParams_CreateMakeSureDialog
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FWVCallback_Bool Callback_IsOk;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText TxtDesc;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText TxtOk;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText TxtCancel;
+};
+
+/**
+ * gameplay 创建ConfirmDialog传递的参数
+ */
+USTRUCT(BlueprintType)
+struct FWVParams_CreateConfirmDialog
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FWVCallback_Null Callback_Confirm;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText TxtDesc;
+};
+
+/**
+ * gameplay 创建ChooseNumDialog传递的参数
+ */
+USTRUCT(BlueprintType)
+struct FWVParams_CreateChooseNumDialog
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FWVCallback_Float Callback_ChooseNum;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MinNum;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxNum;
 };

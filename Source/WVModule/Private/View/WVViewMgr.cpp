@@ -47,3 +47,69 @@ void UWVViewMgr::SwitchMainView(UWVViewBase* view)
 	_mainView = view;
 	_mainView->AddToViewport((int32)EWVViewZOrder::MainView);
 }
+
+void UWVViewMgr::PushFuncView(UWVViewBase* view)
+{
+	if (!IsValid(view))
+	{
+		return;
+	}
+	_funcViewArr.Push(view);
+	view->AddToViewport((int32)EWVViewZOrder::FuncView);
+}
+
+void UWVViewMgr::PopFuncView(UWVViewBase* view)
+{
+	if (_funcViewArr.Num() > 0)
+	{
+		if (view)
+		{
+			for (int32 i = _funcViewArr.Num() - 1; i >= 0; --i)
+			{
+				if (_funcViewArr[i] == view)
+				{
+					_funcViewArr[i]->RemoveFromParent();
+					_funcViewArr.RemoveAt(i);
+					break;
+				}
+			}
+		}
+		else
+		{
+			_funcViewArr[_funcViewArr.Num() - 1]->RemoveFromParent();
+		}
+	}
+}
+
+void UWVViewMgr::PushDialog(UWVViewBase* view)
+{
+	if (!IsValid(view))
+	{
+		return;
+	}
+	_dialogArr.Push(view);
+	view->AddToViewport((int32)EWVViewZOrder::Dialog);
+}
+
+void UWVViewMgr::PopDialog(UWVViewBase* view)
+{
+	if (_dialogArr.Num() > 0)
+	{
+		if (view)
+		{
+			for (int32 i = _dialogArr.Num() - 1; i >= 0; --i)
+			{
+				if (_dialogArr[i] == view)
+				{
+					_dialogArr[i]->RemoveFromParent();
+					_dialogArr.RemoveAt(i);
+					break;
+				}
+			}
+		}
+		else
+		{
+			_dialogArr[_dialogArr.Num() - 1]->RemoveFromParent();
+		}
+	}
+}

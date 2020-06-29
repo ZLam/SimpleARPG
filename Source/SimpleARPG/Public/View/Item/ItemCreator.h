@@ -18,5 +18,5 @@ public:
 	virtual void OnEnter() override;
 
 	UFUNCTION()
-	void Rec_Test();
+	void Rec_OnCreateItemView();
 };
