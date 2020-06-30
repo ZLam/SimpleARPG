@@ -8,6 +8,8 @@
 
 void UMainCreator::OnEnter()
 {
+	Super::OnEnter();
+	
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateMainView, this, TEXT("Rec_OnCreateMainView"));
 }
 

@@ -31,6 +31,8 @@ enum class EWVEventName : uint8
 	PlayerPowerChange				UMETA(DisplayName = "PlayerPowerChange"),
 	PlayerHPChange					UMETA(DisplayName = "PlayerHPChange"),
 	MoneyChange						UMETA(DisplayName = "MoneyChange"),
+	ComboStepExecute				UMETA(DisplayName = "ComboStepExecute"),		//暂时拿来看看按键
+	ComboResumeExecute				UMETA(DisplayName = "ComboResumeExecute"),		//暂时拿来看看按键
 	//Normal Inner Event End
 
 	//Create View Event Begin

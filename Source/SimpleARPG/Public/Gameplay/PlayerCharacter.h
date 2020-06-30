@@ -54,6 +54,8 @@ protected:
 	UFUNCTION()
 	void LockTarget_Callback_Distance(float dist);
 
+	virtual void _KillSomeone(AActor* InSomeone) override;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();

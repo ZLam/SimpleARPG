@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "WVModule/Public/Gameplay/WVCharacter.h"
 #include "WVModule/Public/WVGameTypes.h"
 #include "ActionCharacter.generated.h"
 
@@ -25,7 +25,7 @@ public:
 };
 
 UCLASS()
-class SIMPLEARPG_API AActionCharacter : public ACharacter
+class SIMPLEARPG_API AActionCharacter : public AWVCharacter
 {
 	GENERATED_BODY()
 
@@ -87,6 +87,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void HandleAnimNotify_DodgeChangeColliderEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void HandleAnimNotify_DieEnd();
 
 	UFUNCTION(BlueprintPure)
 	UComboMachineComp* GetComboMachineComp() { return _Comp_ComboMachine; }
@@ -196,6 +199,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Straight_Bounce_B;
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _AnimMontage_Die;
+
 	UPROPERTY(EditAnywhere)
 	UComboMachineComp *_Comp_ComboMachine;
 
@@ -208,6 +214,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float _DownResumeTime;
 
+	UPROPERTY(EditDefaultsOnly)
+	float _DieCountDownTime;
+
 	UPROPERTY()
 	float _HurtedRotAngle;
 
@@ -219,25 +228,33 @@ protected:
 
 	FTimerHandle _Timer_ResumeDown;
 
+	FTimerHandle _Timer_DieCountdown;
+
 	TSharedPtr<FRotator> _ToHurtedRot;
 
 	TSharedPtr<FVector> _ToHurtedOffset;
 
+	AController *_TmpEventInstigatorForDie;
+
+	AActor *_TmpDamageCauserForDie;
+
 	/**
 	 * 硬直状态，硬直的表现会有后退，弹开，击飞等等
-	 * Down状态（特殊的硬直），意在不能一直连击并拉开距离，只会有弹开，击飞等等之类的表现
+	 * Down状态（特殊的硬直），意在不能一直被连击并拉开距离，只会有弹开，击飞等等之类的表现
 	 */
 	UFUNCTION()
 	void _HandleStraight(AActionCharacter *Attacker, EWVStraightType curStraightType, const FWVStraightData &StraightData);
 
 	UFUNCTION()
-	void Die();
+	void Die(AController* EventInstigator, AActor* DamageCauser);
 
 	UFUNCTION()
 	void Callback_ComboMachine_Start();
 
 	UFUNCTION()
 	void Callback_ComboMachine_Resume();
+
+	virtual void _KillSomeone(AActor* InSomeone);
 
 	void ShowDebug_Direction();
 

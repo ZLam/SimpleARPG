@@ -8,6 +8,7 @@
 #include "InputBufferSys/InputBufferController.h"
 #include "InputBufferSys/InputBufferComp.h"
 #include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
+#include "WVModule/Public/EventSys/WVEventDispatcher.h"
 
 // Sets default values for this component's properties
 UComboMachineComp::UComboMachineComp()
@@ -179,6 +180,12 @@ bool UComboMachineComp::_Step()
 				_CurNode = tNode;
 
 				ret = true;
+
+				// 暂时拿来看看按键
+				FWVParams_ComboStepExecute tParams;
+				tParams.ComboMatchKeys = matchKeys;
+				UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboStepExecute, &tParams);
+				//
 
 				break;
 			}

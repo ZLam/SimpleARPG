@@ -3,14 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Gameplay/WVObject.h"
 #include "TestObject.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIMPLEARPG_API UTestObject : public UWVObject
+class SIMPLEARPG_API UTestObject : public UObject
 {
 	GENERATED_BODY()
 };

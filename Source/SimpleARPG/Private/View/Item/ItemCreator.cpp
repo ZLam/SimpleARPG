@@ -9,6 +9,8 @@
 
 void UItemCreator::OnEnter()
 {
+	Super::OnEnter();
+	
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateItemView, this, TEXT("Rec_OnCreateItemView"));
 }
 

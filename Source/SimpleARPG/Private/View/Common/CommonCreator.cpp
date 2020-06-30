@@ -11,6 +11,8 @@
 
 void UCommonCreator::OnEnter()
 {
+	Super::OnEnter();
+	
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateMakeSureDialog, this, TEXT("Rec_OnCreateMakeSureDialog"));
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateConfirmDialog, this, TEXT("Rec_OnCreateConfirmDialog"));
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateChooseNumDialog, this, TEXT("Rec_OnCreateChooseNumDialog"));

@@ -231,3 +231,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MaxNum;
 };
+
+/**
+ * gameplay Combo的每一步会发一下事件，暂时拿来看看按键而已
+ */
+USTRUCT(BlueprintType)
+struct FWVParams_ComboStepExecute
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FKey> ComboMatchKeys;
+};

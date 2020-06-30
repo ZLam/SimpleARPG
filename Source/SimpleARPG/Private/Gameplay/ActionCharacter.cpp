@@ -38,6 +38,7 @@ AActionCharacter::AActionCharacter()
 	_bSuperArmor = false;
 	_HurtedRotAngle = 90.0f;
 	_DownResumeTime = 1.0f;
+	_DieCountDownTime = 5.0f;
 
 	_AnimMontage_Dodge = nullptr;
 	_AnimMontage_Straight_Back_F = nullptr;
@@ -145,8 +146,17 @@ void AActionCharacter::BeginPlay()
 
 void AActionCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	if (_EquipMap.Num() > 0)
+	{
+		for (auto elem : _EquipMap)
+		{
+			elem.Value->Destroy();
+		}
+	}
+	
 	auto &timerMgr = GetWorldTimerManager();
 	timerMgr.ClearAllTimersForObject(this);
+	
 	UWVEventDispatcher::GetInstance()->RemoveAllListener(this);
 }
 
@@ -322,14 +332,14 @@ void AActionCharacter::Dodge()
 		return;
 	}
 
-	auto animIns = mesh->GetAnimInstance();
+	auto animInst = mesh->GetAnimInstance();
 
-	if (!animIns)
+	if (!animInst)
 	{
 		return;
 	}
 
-	if (animIns->Montage_IsPlaying(_AnimMontage_Dodge))
+	if (animInst->Montage_IsPlaying(_AnimMontage_Dodge))
 	{
 		return;
 	}
@@ -346,7 +356,7 @@ void AActionCharacter::Dodge()
 	auto lastInputVector = GetLastMovementInputVector();
 	SetActorRotation(lastInputVector.Rotation());
 
-	animIns->Montage_Play(_AnimMontage_Dodge, 1.5f);
+	animInst->Montage_Play(_AnimMontage_Dodge, 1.5f);
 
 	if (_Comp_ComboMachine)
 	{
@@ -396,6 +406,35 @@ void AActionCharacter::HandleAnimNotify_DodgeChangeColliderEnd()
 	_bDodgeChangeColliderEnd = true;
 }
 
+void AActionCharacter::HandleAnimNotify_DieEnd()
+{
+	auto animInst = GetMesh()->GetAnimInstance();
+
+	animInst->bNeedsUpdate = false;
+	
+	auto &timerMgr = GetWorldTimerManager();
+
+	if (!timerMgr.TimerExists(_Timer_DieCountdown))
+	{
+		FTimerDelegate callback;
+		callback.BindLambda(
+			[this]()
+			{
+				if (_TmpEventInstigatorForDie)
+				{
+					auto killer = Cast<AActionCharacter>(_TmpEventInstigatorForDie->GetCharacter());
+					if (killer)
+					{
+						killer->_KillSomeone(this);
+					}
+				}
+				Destroy();
+			}
+		);
+		timerMgr.SetTimer(_Timer_DieCountdown, callback, _DieCountDownTime, false);
+	}
+}
+
 void AActionCharacter::ResumeStraight()
 {
 	if (_State == EWVActionCharacterState::Straight)
@@ -431,8 +470,8 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	auto ret = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	//Down 无敌
-	if (_State == EWVActionCharacterState::Down)
+	//Down 无敌; Die 不处理
+	if (_State == EWVActionCharacterState::Down || _State == EWVActionCharacterState::Die)
 	{
 		return ret;
 	}
@@ -470,7 +509,7 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 								//死亡
 
 								_CurHP = 0;
-								Die();
+								Die(EventInstigator, DamageCauser);
 							}
 							else
 							{
@@ -600,8 +639,8 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 	}
 
 	//硬直表现
-	auto aniIns = GetMesh()->GetAnimInstance();
-	if (aniIns)
+	auto animInst = GetMesh()->GetAnimInstance();
+	if (animInst)
 	{
 		switch (roughlyDir)
 		{
@@ -611,14 +650,14 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 				{
 					if (_AnimMontage_Straight_Back_B)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Back_B);
+						animInst->Montage_Play(_AnimMontage_Straight_Back_B);
 					}
 				}
 				else if (curStraightType == EWVStraightType::Bounce)
 				{
 					if (_AnimMontage_Straight_Bounce_B)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_B);
+						animInst->Montage_Play(_AnimMontage_Straight_Bounce_B);
 					}
 				}
 				break;
@@ -629,14 +668,14 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 				{
 					if (_AnimMontage_Straight_Back_F)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Back_F);
+						animInst->Montage_Play(_AnimMontage_Straight_Back_F);
 					}
 				}
 				else if (curStraightType == EWVStraightType::Bounce)
 				{
 					if (_AnimMontage_Straight_Bounce_F)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_F);
+						animInst->Montage_Play(_AnimMontage_Straight_Bounce_F);
 					}
 				}
 				break;
@@ -647,14 +686,14 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 				{
 					if (_AnimMontage_Straight_Back_L)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Back_L);
+						animInst->Montage_Play(_AnimMontage_Straight_Back_L);
 					}
 				}
 				else if (curStraightType == EWVStraightType::Bounce)
 				{
 					if (_AnimMontage_Straight_Bounce_F)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_F);
+						animInst->Montage_Play(_AnimMontage_Straight_Bounce_F);
 					}
 				}
 				break;
@@ -665,14 +704,14 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 				{
 					if (_AnimMontage_Straight_Back_R)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Back_R);
+						animInst->Montage_Play(_AnimMontage_Straight_Back_R);
 					}
 				}
 				else if (curStraightType == EWVStraightType::Bounce)
 				{
 					if (_AnimMontage_Straight_Bounce_F)
 					{
-						aniIns->Montage_Play(_AnimMontage_Straight_Bounce_F);
+						animInst->Montage_Play(_AnimMontage_Straight_Bounce_F);
 					}
 				}
 				break;
@@ -681,9 +720,28 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 	}
 }
 
-void AActionCharacter::Die()
+void AActionCharacter::Die(AController* EventInstigator, AActor* DamageCauser)
 {
-	WVLogI(TEXT("die die die"))
+	_TmpEventInstigatorForDie = EventInstigator;
+	_TmpDamageCauserForDie = DamageCauser;
+	
+	auto animInst = GetMesh()->GetAnimInstance();
+	
+	if (_AnimMontage_Die && animInst)
+	{
+		animInst->Montage_Play(_AnimMontage_Die);
+	}
+	else
+	{
+		HandleAnimNotify_DieEnd();
+	}
+
+	_State = EWVActionCharacterState::Die;
+}
+
+void AActionCharacter::_KillSomeone(AActor* InSomeone)
+{
+
 }
 
 void AActionCharacter::Callback_ComboMachine_Start()
@@ -699,6 +757,11 @@ void AActionCharacter::Callback_ComboMachine_Resume()
 	if (_State == EWVActionCharacterState::Atking)
 	{
 		_State = EWVActionCharacterState::ReadyAtk;
+
+
+		//暂时拿来看看按键
+		UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboResumeExecute);
+		//
 	}
 }
 

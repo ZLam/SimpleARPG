@@ -8,6 +8,8 @@
 
 void ULoginCreator::OnEnter()
 {
+	Super::OnEnter();
+	
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateLoginView, this, TEXT("Rec_OnCreateLoginView"));
 }
 

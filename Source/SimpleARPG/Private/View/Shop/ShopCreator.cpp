@@ -8,6 +8,8 @@
 
 void UShopCreator::OnEnter()
 {
+	Super::OnEnter();
+	
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::CreateShopView, this, TEXT("Rec_OnCreateShopView"));
 }
 

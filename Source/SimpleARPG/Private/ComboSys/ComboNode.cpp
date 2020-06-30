@@ -104,6 +104,13 @@ FString UComboNode::GetComboActionName()
 
 bool UComboNode::Condition_Implementation()
 {
+	auto tActionCharacter = Cast<AActionCharacter>(GetOwner());
+
+	if (tActionCharacter && tActionCharacter->IsDodging())
+	{
+		return false;
+	}
+	
 	return true;
 }
 

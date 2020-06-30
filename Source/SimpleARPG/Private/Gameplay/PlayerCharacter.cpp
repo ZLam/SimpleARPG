@@ -66,6 +66,33 @@ void APlayerCharacter::UnlockTarget()
 	_Index_Target = -1;
 }
 
+void APlayerCharacter::_KillSomeone(AActor* InSomeone)
+{
+	Super::_KillSomeone(InSomeone);
+
+	if (!InSomeone)
+	{
+		return;
+	}
+
+	// WVLogI(TEXT("%s kill %s"), *GetName(), *(InSomeone->GetName()))
+
+	if (_Targets.Num() > 0)
+	{
+		_Targets.Remove(InSomeone);
+
+		UnlockTarget();
+		if (_Targets.Num() > 0)
+		{
+			LockTarget();
+		}
+	}
+	else
+	{
+		UnlockTarget();
+	}
+}
+
 void APlayerCharacter::LockTarget_Callback_Distance(float dist)
 {
 	// WVLogI(TEXT("%f"), dist);
