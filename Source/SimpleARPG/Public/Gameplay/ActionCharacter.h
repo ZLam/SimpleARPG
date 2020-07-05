@@ -11,6 +11,13 @@ class UAnimMontage;
 class UComboMachineComp;
 class AEquipment;
 
+UENUM(BlueprintType)
+enum class ECharacterRotationMode : uint8
+{
+	FollowCtrlYaw		UMETA(DisplayName = "FollowCtrlYaw"),
+	OrientByMove		UMETA(DisplayName = "OrientByMove"),
+};
+
 USTRUCT()
 struct FCharacterEquipInfo
 {
@@ -109,6 +116,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResumeStraight();
 
+	UFUNCTION(BlueprintPure)
+	FVector GetLastMovementInputVector_EX();
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsStrafe() { return _bStrafe; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetStrafe(bool val) { _bStrafe = val; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetRotationMode(ECharacterRotationMode InMode);
+
+	/**
+	 * 暂时这样处理，为什么呢，因为AI果边要SetFocus，而敌人是有情况是使用controller的角度的，比如敌人设左bUseControllerRotationYaw = true，
+	 * 然后又需要SetFocus某个Actor。那么当敌人受到攻击时，不能直接设敌人Actor的角度，而应该设controller的角度。因为当前敌人设了使用controller的
+	 * 角度！！！
+	 */
+	UFUNCTION()
+	void SetRotation_EX(const FRotator &InRotation);
+
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
@@ -177,6 +204,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	bool _bSuperArmor;
+
+	UPROPERTY(VisibleAnywhere)
+	bool _bStrafe;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Dodge;

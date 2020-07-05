@@ -34,6 +34,7 @@ AActionCharacter::AActionCharacter()
 	_bDodgeChangeColliderBegin = false;
 	_bDodgeChangeColliderEnd = false;
 	_bLockDodge = false;
+	_bStrafe = false;
 
 	_bSuperArmor = false;
 	_HurtedRotAngle = 90.0f;
@@ -235,7 +236,9 @@ void AActionCharacter::Tick(float DeltaTime)
 	if (_ToHurtedRot.IsValid())
 	{
 		auto nextRot = FMath::RInterpTo(GetActorRotation(), *_ToHurtedRot, DeltaTime, 20);
-		SetActorRotation(nextRot);
+
+		SetRotation_EX(nextRot);
+		
 		if (nextRot == *_ToHurtedRot)
 		{
 			_ToHurtedRot.Reset();
@@ -353,8 +356,9 @@ void AActionCharacter::Dodge()
 
 	_bDodging = true;
 
-	auto lastInputVector = GetLastMovementInputVector();
-	SetActorRotation(lastInputVector.Rotation());
+	auto lastInputVector = GetLastMovementInputVector_EX();
+
+	SetRotation_EX(lastInputVector.Rotation());
 
 	animInst->Montage_Play(_AnimMontage_Dodge, 1.5f);
 
@@ -462,6 +466,35 @@ void AActionCharacter::ResumeStraight()
 			);
 			timerMgr.SetTimer(_Timer_ResumeDown, callback, _DownResumeTime, false);
 		}
+	}
+}
+
+void AActionCharacter::SetRotationMode(ECharacterRotationMode InMode)
+{
+	if (InMode == ECharacterRotationMode::FollowCtrlYaw)
+	{
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+	else
+	{
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+	}
+}
+
+void AActionCharacter::SetRotation_EX(const FRotator& InRotation)
+{
+	if (bUseControllerRotationYaw ||
+		bUseControllerRotationPitch ||
+		bUseControllerRotationRoll)
+	{
+		auto ctrl = GetController();
+		ctrl->SetControlRotation(InRotation);
+	}
+	else
+	{
+		SetActorRotation(InRotation);
 	}
 }
 
@@ -739,6 +772,16 @@ void AActionCharacter::Die(AController* EventInstigator, AActor* DamageCauser)
 	_State = EWVActionCharacterState::Die;
 }
 
+FVector AActionCharacter::GetLastMovementInputVector_EX()
+{
+	auto v = GetLastMovementInputVector();
+	if (v.IsZero())
+	{
+		return GetActorForwardVector();
+	}
+	return v;
+}
+
 void AActionCharacter::_KillSomeone(AActor* InSomeone)
 {
 
@@ -805,7 +848,7 @@ void AActionCharacter::ShowDebug_LastMovementInputVector()
 		float capsuleHalfHeight;
 		comp_capsule->GetScaledCapsuleSize(capsuleRadius, capsuleHalfHeight);
 		startPos.Z -= (0.7 * capsuleHalfHeight);
-		auto endPos = startPos + GetLastMovementInputVector().GetSafeNormal() * 100;
+		auto endPos = startPos + GetLastMovementInputVector_EX().GetSafeNormal() * 100;
 		DrawDebugDirectionalArrow(GetWorld(), startPos, endPos, 100, FColor::Orange, false, -1, 0, 5);
 	}
 }

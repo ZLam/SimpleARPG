@@ -3,3 +3,7 @@
 
 #include "Gameplay/EnemyCharacter.h"
 
+AEnemyCharacter::AEnemyCharacter()
+{
+	_CurTarget = nullptr;
+}
