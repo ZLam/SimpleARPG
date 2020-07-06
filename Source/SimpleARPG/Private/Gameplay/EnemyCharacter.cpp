@@ -5,5 +5,6 @@
 
 AEnemyCharacter::AEnemyCharacter()
 {
+	IsAI = true;
 	_CurTarget = nullptr;
 }

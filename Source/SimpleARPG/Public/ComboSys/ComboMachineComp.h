@@ -36,16 +36,24 @@ public:
 
 	bool _Step();
 
-	FCallback_ComboMachine Callback_Start;
-	
-	FCallback_ComboMachine Callback_Resume;
-
 protected:
 	UPROPERTY(VisibleAnywhere)
 	UComboNode *_EntryNode;
 
 	UPROPERTY(VisibleAnywhere)
 	UComboNode *_CurNode;
+
+	UPROPERTY(VisibleAnywhere)
+	FString _CurComboName_AI;
+
+	UPROPERTY(VisibleAnywhere)
+	int32 _CurComboActionIndex;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void SetupCurCombo_AI();
+
+	UFUNCTION()
+	void ClearCurCombo_AI();
 
 public:
 	// Sets default values for this component's properties

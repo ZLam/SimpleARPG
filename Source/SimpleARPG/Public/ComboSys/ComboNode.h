@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	FString GetComboActionName();
 
+	UFUNCTION()
+	bool IsMatchKeys(const TArray<FKey> &InMatchKeys);
+
 	//自定义条件
 	UFUNCTION(BlueprintNativeEvent)
 	bool Condition();

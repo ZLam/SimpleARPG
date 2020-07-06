@@ -26,6 +26,7 @@ AActionCharacter::AActionCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	_State = EWVActionCharacterState::ReadyAtk;
+	IsAI = false;
 	
 	_AtkRange = 1000.0f;
 	
@@ -135,14 +136,6 @@ void AActionCharacter::BeginPlay()
 			WVLogW(TEXT("create equip fail, cant spawn"))
 		}
 	}
-
-	FScriptDelegate callback_comboMachine_start;
-	callback_comboMachine_start.BindUFunction(this, TEXT("Callback_ComboMachine_Start"));
-	_Comp_ComboMachine->Callback_Start.Add(callback_comboMachine_start);
-
-	FScriptDelegate callback_comboMachine_resume;
-	callback_comboMachine_resume.BindUFunction(this, TEXT("Callback_ComboMachine_Resume"));
-	_Comp_ComboMachine->Callback_Resume.Add(callback_comboMachine_resume);
 }
 
 void AActionCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -239,18 +232,22 @@ void AActionCharacter::Tick(float DeltaTime)
 
 		SetRotation_EX(nextRot);
 		
-		if (nextRot == *_ToHurtedRot)
+		if (nextRot.Equals(*_ToHurtedRot, 1.0f))
 		{
+			SetRotation_EX(*_ToHurtedRot);
 			_ToHurtedRot.Reset();
 		}
 	}
 
 	if (_ToHurtedOffset.IsValid())
 	{
-		auto nextPos = FMath::VInterpTo(GetActorLocation(), *_ToHurtedOffset, DeltaTime, 10);
+		auto nextPos = FMath::VInterpTo(GetActorLocation(), *_ToHurtedOffset, DeltaTime, 5);
+		
 		SetActorLocation(nextPos);
-		if (nextPos == *_ToHurtedOffset)
+		
+		if (nextPos.Equals(*_ToHurtedOffset, 1.0f))
 		{
+			SetActorLocation(*_ToHurtedOffset);
 			_ToHurtedOffset.Reset();
 		}
 	}
@@ -317,6 +314,13 @@ void AActionCharacter::Dodge()
 	}
 
 	if (_CurPower < _DodgeCost)
+	{
+		return;
+	}
+
+	if (_State == EWVActionCharacterState::Straight ||
+		_State == EWVActionCharacterState::Down ||
+		_State == EWVActionCharacterState::Die)
 	{
 		return;
 	}
@@ -507,6 +511,15 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	if (_State == EWVActionCharacterState::Down || _State == EWVActionCharacterState::Die)
 	{
 		return ret;
+	}
+
+	//自己攻击中受到伤害
+	if (_State == EWVActionCharacterState::Atking)
+	{
+		if (!_bSuperArmor)
+		{
+			_Comp_ComboMachine->Resume();
+		}
 	}
 
 	//目前只处理内置的点攻击@TODO
@@ -755,6 +768,7 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 
 void AActionCharacter::Die(AController* EventInstigator, AActor* DamageCauser)
 {
+	_State = EWVActionCharacterState::Die;
 	_TmpEventInstigatorForDie = EventInstigator;
 	_TmpDamageCauserForDie = DamageCauser;
 	
@@ -768,8 +782,6 @@ void AActionCharacter::Die(AController* EventInstigator, AActor* DamageCauser)
 	{
 		HandleAnimNotify_DieEnd();
 	}
-
-	_State = EWVActionCharacterState::Die;
 }
 
 FVector AActionCharacter::GetLastMovementInputVector_EX()
@@ -785,27 +797,6 @@ FVector AActionCharacter::GetLastMovementInputVector_EX()
 void AActionCharacter::_KillSomeone(AActor* InSomeone)
 {
 
-}
-
-void AActionCharacter::Callback_ComboMachine_Start()
-{
-	if (_State == EWVActionCharacterState::ReadyAtk)
-	{
-		_State = EWVActionCharacterState::Atking;
-	}
-}
-
-void AActionCharacter::Callback_ComboMachine_Resume()
-{
-	if (_State == EWVActionCharacterState::Atking)
-	{
-		_State = EWVActionCharacterState::ReadyAtk;
-
-
-		//暂时拿来看看按键
-		UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboResumeExecute);
-		//
-	}
 }
 
 void AActionCharacter::ShowDebug_Direction()

@@ -9,6 +9,7 @@
 #include "InputBufferSys/InputBufferComp.h"
 #include "WVModule/Public/ConfigUtil/WVConfigUtil.h"
 #include "WVModule/Public/EventSys/WVEventDispatcher.h"
+#include "WVModule/Public/Logger/WVLog.h"
 
 // Sets default values for this component's properties
 UComboMachineComp::UComboMachineComp()
@@ -21,6 +22,7 @@ UComboMachineComp::UComboMachineComp()
 	
 	_EntryNode = nullptr;
 	_CurNode = nullptr;
+	_CurComboActionIndex = 0;
 }
 
 
@@ -100,11 +102,28 @@ bool UComboMachineComp::Start()
 		return false;
 	}
 
+	AActionCharacter *tCharacter = Cast<AActionCharacter>(GetOwner());
+
+	if (tCharacter->IsAI)
+	{
+		SetupCurCombo_AI();
+	}
+
 	auto ret = _Step();
 
-	if (ret && Callback_Start.IsBound())
+	if (ret)
 	{
-		Callback_Start.Broadcast();
+		if (tCharacter)
+		{
+			if (tCharacter->_State == EWVActionCharacterState::ReadyAtk)
+			{
+				tCharacter->_State = EWVActionCharacterState::Atking;
+			}
+		}
+	}
+	else
+	{
+		Resume();
 	}
 	
 	return ret;
@@ -117,16 +136,40 @@ bool UComboMachineComp::Step()
 		return false;
 	}
 
-	return _Step();
+	auto ret = _Step();
+
+	// 开了的话，可以中途打新的combo，在后摇时。。。：）
+	// if (!ret)
+	// {
+	// 	Resume();
+	// }
+
+	return ret;
 }
 
 void UComboMachineComp::Resume()
 {
 	_CurNode = _EntryNode;
 
-	if (Callback_Resume.IsBound())
+	AActionCharacter *tCharacter = Cast<AActionCharacter>(GetOwner());
+	
+	if (tCharacter)
 	{
-		Callback_Resume.Broadcast();
+		if (tCharacter->_State == EWVActionCharacterState::Atking)
+		{
+			tCharacter->_State = EWVActionCharacterState::ReadyAtk;
+		}
+
+		if (tCharacter->IsAI)
+		{
+			ClearCurCombo_AI();
+		}
+		
+		
+
+		// @TEMP 暂时拿来看看按键
+		UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboResumeExecute);
+		//
 	}
 }
 
@@ -140,20 +183,25 @@ bool UComboMachineComp::_Step()
 		return ret;
 	}
 
+	AInputBufferController *inputCtrl = nullptr;
+	UInputBufferComp *comp_inputBuffer = nullptr;
+	if (!tCharacter->IsAI)
+	{
+		inputCtrl = Cast<AInputBufferController>(tCharacter->GetController());
+		if (!inputCtrl)
+		{
+			return ret;
+		}
+
+		comp_inputBuffer = inputCtrl->GetInputBufferComp();
+		if (!comp_inputBuffer)
+		{
+			return ret;
+		}
+	}
+
 	auto cfg_combo = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboRow>(EWVConfigName::Combo, tCharacter->GetActionCharacterName());
 	if (!cfg_combo)
-	{
-		return ret;
-	}
-
-	auto inputCtrl = Cast<AInputBufferController>(tCharacter->GetController());
-	if (!inputCtrl)
-	{
-		return ret;
-	}
-
-	auto comp_inputBuffer = inputCtrl->GetInputBufferComp();
-	if (!comp_inputBuffer)
 	{
 		return ret;
 	}
@@ -163,31 +211,58 @@ bool UComboMachineComp::_Step()
 	{
 		const FString &comboName = tNode->GetComboName();
 		const int32 &comboIndex = tNode->GetComboIndex();
-		auto comboInfo = cfg_combo->ComboInfoMap.Find(comboName);
 
-		if (comboInfo && comboIndex >= 0 && comboIndex < comboInfo->ComboKeys.Num())
+		if (!tCharacter->IsAI)
 		{
-			auto &matchKeys = comboInfo->ComboKeys[comboIndex].MatchKeys;
-			auto &matchStyles = comboInfo->ComboMatchStyles[comboIndex].MatchStyles;
-			auto &matchDatas = comboInfo->ComboMatchDatas[comboIndex].MatchDatas;
-
-			bool bMatch = comp_inputBuffer->MatchAll(matchKeys, matchStyles, matchDatas);
-
-			if (bMatch && tNode->Condition())
+			//玩家自己的处理
+			
+			auto comboInfo = cfg_combo->ComboInfoMap.Find(comboName);
+			if (comboInfo && comboIndex >= 0 && comboIndex < comboInfo->ComboKeys.Num())
 			{
-				tNode->Do();
+				auto &matchKeys = comboInfo->ComboKeys[comboIndex].MatchKeys;
+				auto &matchStyles = comboInfo->ComboMatchStyles[comboIndex].MatchStyles;
+				auto &matchDatas = comboInfo->ComboMatchDatas[comboIndex].MatchDatas;
 
-				_CurNode = tNode;
+				bool bMatch = comp_inputBuffer->MatchAll(matchKeys, matchStyles, matchDatas);
 
-				ret = true;
+				if (bMatch && tNode->Condition())
+				{
+					tNode->Do();
+					_CurNode = tNode;
+					ret = true;
 
-				// 暂时拿来看看按键
-				FWVParams_ComboStepExecute tParams;
-				tParams.ComboMatchKeys = matchKeys;
-				UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboStepExecute, &tParams);
-				//
+					// @TEMP 暂时拿来看看按键
+					FWVParams_ComboStepExecute tParams;
+					tParams.ComboMatchKeys = matchKeys;
+					UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboStepExecute, &tParams);
+					//
 
-				break;
+					break;
+				}
+			}
+		}
+		else
+		{
+			//AI
+			
+			if (!_CurComboName_AI.IsEmpty())
+			{
+				auto comboInfo = cfg_combo->ComboInfoMap.Find(_CurComboName_AI);
+				if (comboInfo && _CurComboActionIndex >= 0 && _CurComboActionIndex < comboInfo->ComboKeys.Num())
+				{
+					bool bMatch = tNode->IsMatchKeys(comboInfo->ComboKeys[_CurComboActionIndex].MatchKeys);
+					if (bMatch && tNode->Condition())
+					{
+						WVLogI(TEXT("%s"), *(tNode->GetComboActionName()))
+						
+						tNode->Do();
+						_CurNode = tNode;
+						ret = true;
+						_CurComboActionIndex++;
+						
+						break;;
+					}
+				}
 			}
 		}
 	}
@@ -202,4 +277,41 @@ UComboNode* UComboMachineComp::GetCurNode()
 		return _CurNode;
 	}
 	return nullptr;
+}
+
+void UComboMachineComp::SetupCurCombo_AI_Implementation()
+{
+	if (!_CurComboName_AI.IsEmpty())
+	{
+		return;
+	}
+	
+	AActionCharacter *tCharacter = Cast<AActionCharacter>(GetOwner());
+	if (!tCharacter)
+	{
+		return;
+	}
+
+	auto cfg_combo = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboRow>(EWVConfigName::Combo, tCharacter->GetActionCharacterName());
+	if (!cfg_combo)
+	{
+		return;
+	}
+
+	TArray<FString> keys;
+	
+	cfg_combo->ComboInfoMap.GetKeys(keys);
+	if (keys.Num() > 0)
+	{
+		auto index = FMath::RandRange(0, keys.Num() - 1);
+		_CurComboName_AI = FString(keys[index]);
+	}
+
+	WVLogI(TEXT("%s combo : %s"), *(tCharacter->GetName()), *_CurComboName_AI)
+}
+
+void UComboMachineComp::ClearCurCombo_AI()
+{
+	_CurComboName_AI.Empty();
+	_CurComboActionIndex = 0;
 }

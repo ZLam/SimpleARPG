@@ -36,6 +36,8 @@ class SIMPLEARPG_API AActionCharacter : public AWVCharacter
 {
 	GENERATED_BODY()
 
+	friend class UComboMachineComp;
+
 public:
 	UPROPERTY(EditAnywhere)
 	bool bShowDebug_Direction;
@@ -46,6 +48,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bShowDebug_LastMovementInputVector;
 
+	UPROPERTY(VisibleAnywhere)
+	bool IsAI;
+	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE FName GetActionCharacterName() { return _CharactorName; }
 	
@@ -232,7 +237,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _AnimMontage_Die;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UComboMachineComp *_Comp_ComboMachine;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -277,12 +282,6 @@ protected:
 
 	UFUNCTION()
 	void Die(AController* EventInstigator, AActor* DamageCauser);
-
-	UFUNCTION()
-	void Callback_ComboMachine_Start();
-
-	UFUNCTION()
-	void Callback_ComboMachine_Resume();
 
 	virtual void _KillSomeone(AActor* InSomeone);
 

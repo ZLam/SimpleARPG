@@ -29,16 +29,7 @@ UComboNode* UComboNode::GetChild(const TArray<FKey> &InMatchKeys)
 {
 	for (auto tNode : _Children)
 	{
-		bool bFind = true;
-		for (auto key : InMatchKeys)
-		{
-			if (!tNode->_MatchKeysMap.Find(key))
-			{
-				bFind = false;
-				break;
-			}
-		}
-		if (bFind)
+		if (tNode->IsMatchKeys(InMatchKeys))
 		{
 			return tNode;
 		}
@@ -100,6 +91,24 @@ FString UComboNode::GetComboActionName()
 		}
 	}
 	return FString();
+}
+
+bool UComboNode::IsMatchKeys(const TArray<FKey>& InMatchKeys)
+{
+	if (InMatchKeys.Num() != _MatchKeysMap.Num())
+	{
+		return false;
+	}
+	
+	for (auto &tKey : InMatchKeys)
+	{
+		if (!_MatchKeysMap.Find(tKey))
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 bool UComboNode::Condition_Implementation()
