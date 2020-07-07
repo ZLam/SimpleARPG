@@ -36,6 +36,7 @@ AActionCharacter::AActionCharacter()
 	_bDodgeChangeColliderEnd = false;
 	_bLockDodge = false;
 	_bStrafe = false;
+	_bLockMove = false;
 
 	_bSuperArmor = false;
 	_HurtedRotAngle = 90.0f;
@@ -266,6 +267,11 @@ void AActionCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AActionCharacter::SetSprint(bool bVal)
 {
+	if (_bLockMove)
+	{
+		return;
+	}
+	
 	if (bVal == _bSprinting)
 	{
 		return;
@@ -318,12 +324,13 @@ void AActionCharacter::Dodge()
 		return;
 	}
 
-	if (_State == EWVActionCharacterState::Straight ||
-		_State == EWVActionCharacterState::Down ||
-		_State == EWVActionCharacterState::Die)
-	{
-		return;
-	}
+	// 目前lock了 先不用这个
+	// if (_State == EWVActionCharacterState::Straight ||
+	// 	_State == EWVActionCharacterState::Down ||
+	// 	_State == EWVActionCharacterState::Die)
+	// {
+	// 	return;
+	// }
 
 	auto comp_move = GetMovementComponent();
 
@@ -443,17 +450,71 @@ void AActionCharacter::HandleAnimNotify_DieEnd()
 	}
 }
 
+void AActionCharacter::SetState(EWVActionCharacterState InState)
+{
+	if (_State == InState)
+	{
+		return;
+	}
+
+	_State = InState;
+
+	switch (_State)
+	{
+		case EWVActionCharacterState::Relax:
+		{
+			//@TODO
+			break;
+		}
+		case EWVActionCharacterState::ReadyAtk:
+		{
+			SetLockMove(false);
+			SetLockDodge(false);
+			break;
+		}
+		case EWVActionCharacterState::Atking:
+		{
+			SetLockMove(true);
+			break;
+		}
+		case EWVActionCharacterState::Straight:
+		{
+			SetLockMove(true);
+			SetLockDodge(true);
+			break;
+		}
+		case EWVActionCharacterState::Down:
+		{
+			SetLockMove(true);
+			SetLockDodge(true);
+			break;
+		}
+		case EWVActionCharacterState::Die:
+		{
+			SetLockMove(true);
+			SetLockDodge(true);
+			break;
+		}
+		default:
+		{
+			WVLogW(TEXT("Unknow State %s!!!"), *(UEnum::GetDisplayValueAsText<EWVActionCharacterState>(_State).ToString()))
+		}
+	}
+}
+
 void AActionCharacter::ResumeStraight()
 {
 	if (_State == EWVActionCharacterState::Straight)
 	{
-		_State = EWVActionCharacterState::ReadyAtk;
+		SetState(EWVActionCharacterState::ReadyAtk);
 	}
 	else if (_State == EWVActionCharacterState::Down)
 	{
 		if (_DownResumeTime <= 0)
 		{
-			_State = EWVActionCharacterState::ReadyAtk;
+			_CurDown = 0;
+			_CurStraight = 0;
+			SetState(EWVActionCharacterState::ReadyAtk);
 		}
 		else
 		{
@@ -464,11 +525,15 @@ void AActionCharacter::ResumeStraight()
 				[this]()
 				{
 					_CurDown = 0;
-					_State = EWVActionCharacterState::ReadyAtk;
+					_CurStraight = 0;
+					SetState(EWVActionCharacterState::ReadyAtk);
 					GetWorldTimerManager().ClearTimer(_Timer_ResumeDown);
 				}
 			);
 			timerMgr.SetTimer(_Timer_ResumeDown, callback, _DownResumeTime, false);
+
+			SetLockMove(false);		//Down起身后马上解锁lockmove，lockdodge，不受Down Delay时间影响
+			SetLockDodge(false);
 		}
 	}
 }
@@ -577,16 +642,20 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 										}
 
 										//Down状态
-										_State = EWVActionCharacterState::Down;
+										SetState(EWVActionCharacterState::Down);
 									}
 									else if (_CurStraight >= _MaxStraight)
 									{
 										//爆硬直
 
+										// WVLogI(TEXT("%f_%f"), _CurStraight, _MaxStraight)
+
 										_CurStraight = (int32)_CurStraight % (int32)_MaxStraight;
+
+										// WVLogI(TEXT("%f"), _CurStraight)
 										
 										//硬直状态
-										_State = EWVActionCharacterState::Straight;
+										SetState(EWVActionCharacterState::Straight);
 									}
 
 									//处理硬直逻辑
@@ -768,7 +837,7 @@ void AActionCharacter::_HandleStraight(AActionCharacter *Attacker, EWVStraightTy
 
 void AActionCharacter::Die(AController* EventInstigator, AActor* DamageCauser)
 {
-	_State = EWVActionCharacterState::Die;
+	SetState(EWVActionCharacterState::Die);
 	_TmpEventInstigatorForDie = EventInstigator;
 	_TmpDamageCauserForDie = DamageCauser;
 	

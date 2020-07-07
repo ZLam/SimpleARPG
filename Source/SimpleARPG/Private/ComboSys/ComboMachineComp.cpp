@@ -115,9 +115,9 @@ bool UComboMachineComp::Start()
 	{
 		if (tCharacter)
 		{
-			if (tCharacter->_State == EWVActionCharacterState::ReadyAtk)
+			if (tCharacter->GetState() == EWVActionCharacterState::ReadyAtk)
 			{
-				tCharacter->_State = EWVActionCharacterState::Atking;
+				tCharacter->SetState(EWVActionCharacterState::Atking);
 			}
 		}
 	}
@@ -155,21 +155,21 @@ void UComboMachineComp::Resume()
 	
 	if (tCharacter)
 	{
-		if (tCharacter->_State == EWVActionCharacterState::Atking)
+		if (tCharacter->GetState() == EWVActionCharacterState::Atking)
 		{
-			tCharacter->_State = EWVActionCharacterState::ReadyAtk;
+			tCharacter->SetState(EWVActionCharacterState::ReadyAtk);
 		}
 
 		if (tCharacter->IsAI)
 		{
 			ClearCurCombo_AI();
 		}
-		
-		
-
-		// @TEMP 暂时拿来看看按键
-		UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboResumeExecute);
-		//
+		else
+		{
+			// @TEMP 暂时拿来看看按键
+			UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboResumeExecute);
+			//
+		}
 	}
 }
 

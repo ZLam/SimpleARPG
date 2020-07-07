@@ -36,8 +36,6 @@ class SIMPLEARPG_API AActionCharacter : public AWVCharacter
 {
 	GENERATED_BODY()
 
-	friend class UComboMachineComp;
-
 public:
 	UPROPERTY(EditAnywhere)
 	bool bShowDebug_Direction;
@@ -107,13 +105,22 @@ public:
 	UComboMachineComp* GetComboMachineComp() { return _Comp_ComboMachine; }
 
 	UFUNCTION(BlueprintPure)
-	bool IsLockDodge() { return _bLockDodge; }
+	FORCEINLINE bool IsLockDodge() { return _bLockDodge; }
 
 	UFUNCTION(BlueprintCallable)
 	void SetLockDodge(bool val) { _bLockDodge = val; }
 
 	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsLockMove() { return _bLockMove; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetLockMove(bool val) { _bLockMove = val; }
+
+	UFUNCTION(BlueprintPure)
 	EWVActionCharacterState GetState() { return _State; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetState(EWVActionCharacterState InState);
 
 	UFUNCTION(BlueprintPure)
 	AEquipment* GetEquipment(const FName &InEquipName) { return _EquipMap.FindRef(InEquipName); }
@@ -138,7 +145,7 @@ public:
 	 * 然后又需要SetFocus某个Actor。那么当敌人受到攻击时，不能直接设敌人Actor的角度，而应该设controller的角度。因为当前敌人设了使用controller的
 	 * 角度！！！
 	 */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void SetRotation_EX(const FRotator &InRotation);
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
@@ -188,6 +195,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	bool _bLockDodge;
+
+	UPROPERTY(VisibleAnywhere)
+	bool _bLockMove;
 
 	UPROPERTY(VisibleAnywhere)
 	float _MaxHP;
