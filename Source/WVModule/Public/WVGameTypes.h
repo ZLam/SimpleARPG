@@ -78,6 +78,15 @@ enum class EWVInputMatchStyle : uint8
 	 * 1 && 2 就ok
 	 */
 	AxisLR_WithLastTime			UMETA(DisplayName = "AxisLR_WithLastTime"),
+
+	/**
+	 * 匹配时
+	 * 1，当前时间和轴的LastTime的差在有效范围
+	 * 2，当前轴的值和 -1 或 1 的差在有效范围，说明当前轴在适当范围确实指向F
+	 * 1 && 2 就ok
+	 */
+	AxisF_WithLastTime			UMETA(DisplayName = "AxisF_WithLastTime"),
+	AxisB_WithLastTime			UMETA(DisplayName = "AxisB_WithLastTime"),
 };
 
 /**
@@ -96,6 +105,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ValidDiff_AxisR;		//0.0 ~ 1.0
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ValidDiff_AxisF;		//0.0 ~ 1.0
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ValidDiff_AxisB;		//0.0 ~ 1.0
 };
 
 /**
@@ -133,6 +148,22 @@ public:
 };
 
 /**
+ * gameplay 攻击动作slomo信息
+ */
+USTRUCT(BlueprintType)
+struct FWVComboActionSlomoData
+{
+	GENERATED_USTRUCT_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Dilation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Duration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Delay;
+};
+
+/**
  * gameplay 攻击动作信息
  */
 USTRUCT(BlueprintType)
@@ -144,6 +175,10 @@ public:
 	float Damage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FWVStraightData StraightData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bShake;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FWVComboActionSlomoData SlomoData;
 };
 
 /**
@@ -242,4 +277,6 @@ struct FWVParams_ComboStepExecute
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FKey> ComboMatchKeys;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<EWVInputMatchStyle> ComboMatchStyles;
 };

@@ -154,6 +154,32 @@ bool UInputBufferComp::Match(FKey InKey, EWVInputMatchStyle InMatchStyle, const 
 			}
 			break;
 		}
+		case EWVInputMatchStyle::AxisF_WithLastTime:
+		{
+			if (InKey.IsFloatAxis())
+			{
+				bool bLastTime = GetWorld()->GetRealTimeSeconds() - tInputInfo->LastTime <= InMatchData.ValidDiff_LastTime;
+				bool bAxisF = FMath::Abs(tInputInfo->AxisValue.X - 1) <= InMatchData.ValidDiff_AxisF;
+		
+				ret = bLastTime && bAxisF;
+			}
+			break;
+		}
+		case EWVInputMatchStyle::AxisB_WithLastTime:
+		{
+			if (InKey.IsFloatAxis())
+			{
+				bool bLastTime = GetWorld()->GetRealTimeSeconds() - tInputInfo->LastTime <= InMatchData.ValidDiff_LastTime;
+				bool bAxisB = FMath::Abs(tInputInfo->AxisValue.X - -1) <= InMatchData.ValidDiff_AxisB;
+
+				ret = bLastTime && bAxisB;
+			}
+			break;
+		}
+		default:
+		{
+			WVLogW(TEXT("Unknow InputMatchStyle '%s'!!!"), *(UEnum::GetDisplayValueAsText<EWVInputMatchStyle>(InMatchStyle).ToString()))
+		}
 	}
 	if (bNeedInvalid)
 	{
@@ -167,10 +193,18 @@ bool UInputBufferComp::MatchAll(const TArray<FKey>& InKeys, const TArray<EWVInpu
 {
 	for (int32 i = 0; i < InKeys.Num(); i++)
 	{
-		if (!Match(InKeys[i], InMatchStyles[i], InMatchDataArr[i], bNeedInvalid))
+		if (!Match(InKeys[i], InMatchStyles[i], InMatchDataArr[i]))
 		{
+			if (bNeedInvalid)
+			{
+				Invalid();
+			}
 			return false;
 		}
+	}
+	if (bNeedInvalid)
+	{
+		Invalid();
 	}
 	return true;
 }

@@ -46,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bShowDebug_LastMovementInputVector;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool IsAI;
 	
 	UFUNCTION(BlueprintPure)
@@ -78,6 +78,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMaxPower() { return _MaxPower; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetCurHP() { return _CurHP; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetMaxHP() { return _MaxHP; }
 
 	UFUNCTION(BlueprintCallable)
 	void RecoverPower();

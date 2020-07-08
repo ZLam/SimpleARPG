@@ -7,6 +7,7 @@
 #include "Equipment.generated.h"
 
 class UHitCollectorComp;
+class UCameraShake;
 
 UCLASS()
 class SIMPLEARPG_API AEquipment : public AActor
@@ -20,6 +21,9 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UHitCollectorComp *_Comp_HitCollector;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UCameraShake> _Shake;
 	
 public:	
 	// Sets default values for this actor's properties

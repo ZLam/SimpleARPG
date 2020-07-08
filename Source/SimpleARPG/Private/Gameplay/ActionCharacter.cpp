@@ -226,6 +226,7 @@ void AActionCharacter::Tick(float DeltaTime)
 	}
 
 	//应该要做个Tween 或者 像Cocos2dx的Action 之类的插件来做补间动画的功能。之后要看下！商城有插件，开源也有一个叫iTween UE4的
+	//LatentActionManager 在Delay()里有个这个东东 参考下？
 
 	if (_ToHurtedRot.IsValid())
 	{
@@ -391,11 +392,11 @@ void AActionCharacter::RecoverPower()
 	{
 		FTimerDelegate callback;
 		callback.BindLambda(
-			[this, &timerMgr]()
+			[this]()
 			{
-				timerMgr.ClearTimer(this->_Timer_RecoverPower);
 				_CurPower = _MaxPower;
 				UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::PlayerPowerChange);
+				GetWorldTimerManager().ClearTimer(_Timer_RecoverPower);
 			}
 		);
 		timerMgr.SetTimer(_Timer_RecoverPower, callback, _RecoverPowerTime, false);
@@ -665,6 +666,8 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 									}
 								}
 							}
+
+							UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::PlayerHPChange);
 						}
 					}
 				}

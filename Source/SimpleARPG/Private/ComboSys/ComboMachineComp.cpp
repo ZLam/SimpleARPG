@@ -234,6 +234,7 @@ bool UComboMachineComp::_Step()
 					// @TEMP 暂时拿来看看按键
 					FWVParams_ComboStepExecute tParams;
 					tParams.ComboMatchKeys = matchKeys;
+					tParams.ComboMatchStyles = matchStyles;
 					UWVEventDispatcher::GetInstance()->FireEvent_SP(EWVEventCategory::Inner, EWVEventName::ComboStepExecute, &tParams);
 					//
 
@@ -253,7 +254,7 @@ bool UComboMachineComp::_Step()
 					bool bMatch = tNode->IsMatchKeys(comboInfo->ComboKeys[_CurComboActionIndex].MatchKeys);
 					if (bMatch && tNode->Condition())
 					{
-						WVLogI(TEXT("%s"), *(tNode->GetComboActionName()))
+						// WVLogI(TEXT("%s"), *(tNode->GetComboActionName()))
 						
 						tNode->Do();
 						_CurNode = tNode;
@@ -307,7 +308,7 @@ void UComboMachineComp::SetupCurCombo_AI_Implementation()
 		_CurComboName_AI = FString(keys[index]);
 	}
 
-	WVLogI(TEXT("%s combo : %s"), *(tCharacter->GetName()), *_CurComboName_AI)
+	// WVLogI(TEXT("%s combo : %s"), *(tCharacter->GetName()), *_CurComboName_AI)
 }
 
 void UComboMachineComp::ClearCurCombo_AI()

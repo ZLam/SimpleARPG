@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "View/WVViewBase.h"
+#include "WVModule/Public/WVGameTypes.h"
 #include "MainView.generated.h"
 
 class UTextBlock;
@@ -22,7 +23,7 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 	UFUNCTION()
-	void Rec_ComboStepExecute(TArray<FKey> &InComboMatchKeys);
+	void Rec_ComboStepExecute(TArray<FKey> &InComboMatchKeys, TArray<EWVInputMatchStyle>& InComboMatchStyles);
 
 	UFUNCTION()
 	void Rec_ComboResumeExecute();

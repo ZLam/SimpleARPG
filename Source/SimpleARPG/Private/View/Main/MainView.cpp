@@ -16,7 +16,7 @@ void UMainView::NativeOnInitialized()
 	UWVEventDispatcher::GetInstance()->AddListener(EWVEventCategory::Inner, EWVEventName::ComboResumeExecute, this, TEXT("Rec_ComboResumeExecute"));
 }
 
-void UMainView::Rec_ComboStepExecute(TArray<FKey>& InComboMatchKeys)
+void UMainView::Rec_ComboStepExecute(TArray<FKey>& InComboMatchKeys, TArray<EWVInputMatchStyle>& InComboMatchStyles)
 {
 	// for (auto tKey : InComboMatchKeys)
 	// {
@@ -29,30 +29,23 @@ void UMainView::Rec_ComboStepExecute(TArray<FKey>& InComboMatchKeys)
 		if (InComboMatchKeys.Contains(EKeys::Gamepad_FaceButton_Top))
 		{
 			comboKeyDesc = TEXT("轻格");
-	
-			if (InComboMatchKeys.Contains(EKeys::Gamepad_LeftX))
-			{
-				comboKeyDesc = TEXT("横") + comboKeyDesc;
-			}
-			else if (InComboMatchKeys.Contains(EKeys::Gamepad_LeftY))
-			{
-				// comboKeyDesc = TEXT("前") + comboKeyDesc;
-				// comboKeyDesc = TEXT("后") + comboKeyDesc;
-			}
 		}
 		else if (InComboMatchKeys.Contains(EKeys::Gamepad_FaceButton_Right))
 		{
 			comboKeyDesc = TEXT("重格");
+		}
 
-			if (InComboMatchKeys.Contains(EKeys::Gamepad_LeftX))
-			{
-				comboKeyDesc = TEXT("横") + comboKeyDesc;
-			}
-			else if (InComboMatchKeys.Contains(EKeys::Gamepad_LeftY))
-			{
-				// comboKeyDesc = TEXT("前") + comboKeyDesc;
-				// comboKeyDesc = TEXT("后") + comboKeyDesc;
-			}
+		if (InComboMatchStyles.Contains(EWVInputMatchStyle::AxisLR_WithLastTime))
+		{
+			comboKeyDesc = TEXT("横") + comboKeyDesc;
+		}
+		else if (InComboMatchStyles.Contains(EWVInputMatchStyle::AxisF_WithLastTime))
+		{
+			comboKeyDesc = TEXT("前") + comboKeyDesc;
+		}
+		else if (InComboMatchStyles.Contains(EWVInputMatchStyle::AxisB_WithLastTime))
+		{
+			comboKeyDesc = TEXT("后") + comboKeyDesc;
 		}
 
 		auto txtComboKeyDesc = _Txt_ComboKeys->GetText();
