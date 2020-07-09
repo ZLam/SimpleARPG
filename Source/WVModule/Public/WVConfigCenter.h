@@ -137,6 +137,8 @@ public:
 	TArray<FWVConfig_ComboMatchData> ComboMatchDatas;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FString> ComboActionNames;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ToAtkDistance;
 };
 
 USTRUCT(BlueprintType)

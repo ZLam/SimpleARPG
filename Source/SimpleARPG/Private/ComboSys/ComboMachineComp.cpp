@@ -280,23 +280,23 @@ UComboNode* UComboMachineComp::GetCurNode()
 	return nullptr;
 }
 
-void UComboMachineComp::SetupCurCombo_AI_Implementation()
+FString UComboMachineComp::SetupCurCombo_AI_Implementation()
 {
 	if (!_CurComboName_AI.IsEmpty())
 	{
-		return;
+		return _CurComboName_AI;
 	}
 	
 	AActionCharacter *tCharacter = Cast<AActionCharacter>(GetOwner());
 	if (!tCharacter)
 	{
-		return;
+		return _CurComboName_AI;
 	}
 
 	auto cfg_combo = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboRow>(EWVConfigName::Combo, tCharacter->GetActionCharacterName());
 	if (!cfg_combo)
 	{
-		return;
+		return _CurComboName_AI;
 	}
 
 	TArray<FString> keys;
@@ -308,7 +308,9 @@ void UComboMachineComp::SetupCurCombo_AI_Implementation()
 		_CurComboName_AI = FString(keys[index]);
 	}
 
-	// WVLogI(TEXT("%s combo : %s"), *(tCharacter->GetName()), *_CurComboName_AI)
+	WVLogI(TEXT("%s combo : %s"), *(tCharacter->GetName()), *_CurComboName_AI)
+
+	return _CurComboName_AI;
 }
 
 void UComboMachineComp::ClearCurCombo_AI()

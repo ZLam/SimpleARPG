@@ -49,8 +49,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	int32 _CurComboActionIndex;
 
-	UFUNCTION(BlueprintNativeEvent)
-	void SetupCurCombo_AI();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FString SetupCurCombo_AI();
 
 	UFUNCTION()
 	void ClearCurCombo_AI();
