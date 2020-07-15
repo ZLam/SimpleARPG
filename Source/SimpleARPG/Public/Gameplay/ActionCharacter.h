@@ -154,6 +154,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetRotation_EX(const FRotator &InRotation);
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsBounceSign() { return _bBounceSign; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetBounceSign(bool val) { _bBounceSign = val; }
+
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
@@ -267,6 +273,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float _DieCountDownTime;
+
+	UPROPERTY(VisibleAnywhere)
+	bool _bBounceSign;
 
 	UPROPERTY()
 	float _HurtedRotAngle;

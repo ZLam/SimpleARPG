@@ -42,6 +42,7 @@ AActionCharacter::AActionCharacter()
 	_HurtedRotAngle = 90.0f;
 	_DownResumeTime = 1.0f;
 	_DieCountDownTime = 5.0f;
+	_bBounceSign = false;
 
 	_AnimMontage_Dodge = nullptr;
 	_AnimMontage_Straight_Back_F = nullptr;
@@ -471,6 +472,12 @@ void AActionCharacter::SetState(EWVActionCharacterState InState)
 		{
 			SetLockMove(false);
 			SetLockDodge(false);
+
+			if (_bBounceSign)
+			{
+				_bBounceSign = false;
+			}
+				
 			break;
 		}
 		case EWVActionCharacterState::Atking:
@@ -631,10 +638,31 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 								if (!_bSuperArmor)
 								{
 									auto curStraightType = comboActionData->StraightData.StraightType;
-									_CurDown += comboActionData->StraightData.AddDown;
 									_CurStraight += comboActionData->StraightData.AddStraight;
+
+									//该动作是否需要BounceSign才触发Bounce
+									if (comboActionData->bNeedBounceSign)
+									{
+										if (Attacker->IsBounceSign())
+										{
+											_CurDown += comboActionData->StraightData.AddDown;
+										}
+										else
+										{
+											if (curStraightType == EWVStraightType::Bounce)
+											{
+												curStraightType = EWVStraightType::Back;
+											}
+										}
+									}
+									else
+									{
+										_CurDown += comboActionData->StraightData.AddDown;
+									}
+
+									WVLogI(TEXT("wawa_%s_%d_%d"), *comboActionName, comboActionData->bNeedBounceSign, Attacker->IsBounceSign())
 									
-									if (_CurDown >= _MaxDown)
+									if ((_CurDown >= _MaxDown))
 									{
 										//爆Down		特殊的硬直表现
 										

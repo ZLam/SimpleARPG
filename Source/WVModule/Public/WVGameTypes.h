@@ -179,6 +179,8 @@ public:
 	bool bShake;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FWVComboActionSlomoData SlomoData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bNeedBounceSign;
 };
 
 /**
