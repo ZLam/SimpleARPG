@@ -475,7 +475,9 @@ void AActionCharacter::SetState(EWVActionCharacterState InState)
 		}
 		case EWVActionCharacterState::Atking:
 		{
+			SetSprint(false);
 			SetLockMove(true);
+				
 			break;
 		}
 		case EWVActionCharacterState::Straight:
