@@ -660,7 +660,9 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 										_CurDown += comboActionData->StraightData.AddDown;
 									}
 
-									WVLogI(TEXT("wawa_%s_%d_%d"), *comboActionName, comboActionData->bNeedBounceSign, Attacker->IsBounceSign())
+									// WVLogI(TEXT("wawa_%s_%d_%d"), *comboActionName, comboActionData->bNeedBounceSign, Attacker->IsBounceSign())
+									// WVLogI(TEXT("_CurStraight_%f"), _CurStraight)
+									// WVLogI(TEXT("_CurDown_%f"), _CurDown)
 									
 									if ((_CurDown >= _MaxDown))
 									{
