@@ -15,10 +15,11 @@ void UWVEventHandler::Delete(UObject* inObj)
 {
 	auto ite = begin(_listeners);
 	while (ite)
-	{
+	{		
 		if ((*ite)->caller == inObj)
 		{
 			_listeners.RemoveNode(ite.GetNode());
+			break;
 		}
 		++ite;
 	}

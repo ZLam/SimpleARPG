@@ -64,6 +64,14 @@ void UWVEventDispatcher::Init()
 
 void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* inCaller, const FString& inFuncName)
 {
+	auto eventSignatures = _registedEvents.Find(inCaller);
+
+	if (eventSignatures && eventSignatures->Contains(inEventSignature))
+	{
+		WVLogW(TEXT("%s with %s has added"), *(inCaller->GetName()), *inEventSignature)
+		return;
+	}
+	
 	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
 	if (!pHandle)
 	{
@@ -79,6 +87,14 @@ void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* i
 void UWVEventDispatcher::AddListener(const FString& inEventSignature, UObject* inCaller,
 	FWVEventDelegate_One inDelegateOne)
 {
+	auto eventSignatures = _registedEvents.Find(inCaller);
+
+	if (eventSignatures && eventSignatures->Contains(inEventSignature))
+	{
+		WVLogW(TEXT("%s with %s has added"), *(inCaller->GetName()), *inEventSignature)
+			return;
+	}
+	
 	UWVEventHandler* pHandle = _handlers.FindRef(inEventSignature);
 	if (!pHandle)
 	{
