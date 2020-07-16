@@ -615,6 +615,8 @@ float AActionCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 				{
 					//伤害处理
 
+					// WVLogI(TEXT("%s"), *(Attacker->GetActionCharacterName().ToString()))
+
 					auto cfg_comboAction = UWVConfigUtil::GetInstance()->GetConfigRowData<FWVConfig_ComboActionRow>(EWVConfigName::ComboAction, Attacker->GetActionCharacterName());
 
 					if (cfg_comboAction)

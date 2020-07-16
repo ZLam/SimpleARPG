@@ -43,6 +43,7 @@ enum class EWVEventName : uint8
 	CreateConfirmDialog				UMETA(DisplayName = "CreateConfirmDialog"),
 	CreateChooseNumDialog			UMETA(DisplayName = "CreateChooseNumDialog"),
 	CreateItemView					UMETA(DisplayName = "CreateItemView"),
+	CreateChooseLevelView			UMETA(DisplayName = "CreateChooseLevelView"),
 	//Create View Event End
 
 

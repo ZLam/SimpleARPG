@@ -19,4 +19,7 @@ public:
 
 	UFUNCTION()
 	void Rec_OnCreateLoginView();
+
+	UFUNCTION()
+	void Rec_OnCreateChooseLevelView();
 };
